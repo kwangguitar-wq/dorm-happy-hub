@@ -36,7 +36,7 @@ function RoomsPage() {
     const { error } = editing?.id
       ? await supabase.from("rooms").update(row).eq("id", editing.id)
       : await supabase.from("rooms").insert(row);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("บันทึกแล้ว");
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["rooms"] });
