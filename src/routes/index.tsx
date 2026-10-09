@@ -1,24 +1,32 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { DORM_NAME } from "@/lib/dorm";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: `${DORM_NAME} — ระบบจัดการหอพัก` },
+      { name: "description", content: "จัดการห้องพัก ผู้เช่า บิลค่าน้ำค่าไฟ และการชำระเงินของหอพักบาบรีส แม่ปะ" },
+      { property: "og:title", content: `${DORM_NAME} — ระบบจัดการหอพัก` },
+      { property: "og:description", content: "จัดการห้องพัก ผู้เช่า และบิลได้ทุกที่ทุกอุปกรณ์" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="bg-hero flex min-h-screen items-center px-6">
+      <div className="mx-auto max-w-2xl text-primary-foreground">
+        <p className="text-sm uppercase tracking-[0.3em] opacity-70">ระบบจัดการหอพัก</p>
+        <h1 className="mt-3 text-5xl font-bold md:text-7xl">{DORM_NAME}</h1>
+        <p className="mt-5 text-lg opacity-85">
+          ดูแลห้องพัก ผู้เช่ารายวันและรายเดือน ได้จากมือถือ แท็บเล็ต หรือคอมพิวเตอร์
+        </p>
+        <Button asChild size="lg" variant="secondary" className="mt-8">
+          <Link to="/auth">เข้าสู่ระบบ</Link>
+        </Button>
+      </div>
     </div>
   );
 }
