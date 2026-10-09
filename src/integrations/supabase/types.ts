@@ -14,16 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      rentals: {
+        Row: {
+          check_in: string
+          check_out: string | null
+          created_at: string
+          deposit: number
+          email: string | null
+          id: string
+          id_card: string | null
+          notes: string | null
+          phone: string | null
+          rate: number
+          rental_type: string
+          room_id: string
+          status: string
+          tenant_name: string
+          tenant_user_id: string | null
+        }
+        Insert: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          deposit?: number
+          email?: string | null
+          id?: string
+          id_card?: string | null
+          notes?: string | null
+          phone?: string | null
+          rate?: number
+          rental_type: string
+          room_id: string
+          status?: string
+          tenant_name: string
+          tenant_user_id?: string | null
+        }
+        Update: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          deposit?: number
+          email?: string | null
+          id?: string
+          id_card?: string | null
+          notes?: string | null
+          phone?: string | null
+          rate?: number
+          rental_type?: string
+          room_id?: string
+          status?: string
+          tenant_name?: string
+          tenant_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          created_at: string
+          daily_rate: number
+          floor: number
+          id: string
+          monthly_rate: number
+          notes: string | null
+          room_number: string
+          room_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          daily_rate?: number
+          floor?: number
+          id?: string
+          monthly_rate?: number
+          notes?: string | null
+          room_number: string
+          room_type?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          daily_rate?: number
+          floor?: number
+          id?: string
+          monthly_rate?: number
+          notes?: string | null
+          room_number?: string
+          room_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "staff" | "tenant"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +293,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "staff", "tenant"],
+    },
   },
 } as const
