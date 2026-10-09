@@ -52,7 +52,7 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
       deposit: Number(f.get("deposit") || 0),
       notes: String(f.get("notes") || "") || null,
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await supabase.from("rooms").update({ status: "occupied" }).eq("id", room_id);
     toast.success("เพิ่มผู้เช่าแล้ว");
     setOpen(false);
@@ -64,7 +64,7 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
     if (!confirm("ยืนยันการย้ายออก/เช็คเอาท์?")) return;
     const today = new Date().toISOString().slice(0, 10);
     const { error } = await supabase.from("rentals").update({ status: "ended", check_out: today }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await supabase.from("rooms").update({ status: "vacant" }).eq("id", room_id);
     toast.success("บันทึกการออกแล้ว");
     refresh();
