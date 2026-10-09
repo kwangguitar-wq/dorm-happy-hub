@@ -10,33 +10,120 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedMyRouteImport } from './routes/_authenticated/my'
+import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/rooms'
+import { Route as AuthenticatedTenantsDailyRouteImport } from './routes/_authenticated/tenants.daily'
+import { Route as AuthenticatedTenantsMonthlyRouteImport } from './routes/_authenticated/tenants.monthly'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyRoute = AuthenticatedMyRouteImport.update({
+  id: '/my',
+  path: '/my',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRoomsRoute = AuthenticatedRoomsRouteImport.update({
+  id: '/rooms',
+  path: '/rooms',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTenantsDailyRoute =
+  AuthenticatedTenantsDailyRouteImport.update({
+    id: '/tenants/daily',
+    path: '/tenants/daily',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTenantsMonthlyRoute =
+  AuthenticatedTenantsMonthlyRouteImport.update({
+    id: '/tenants/monthly',
+    path: '/tenants/monthly',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my': typeof AuthenticatedMyRoute
+  '/rooms': typeof AuthenticatedRoomsRoute
+  '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
+  '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/my': typeof AuthenticatedMyRoute
+  '/rooms': typeof AuthenticatedRoomsRoute
+  '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
+  '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/my': typeof AuthenticatedMyRoute
+  '/_authenticated/rooms': typeof AuthenticatedRoomsRoute
+  '/_authenticated/tenants/daily': typeof AuthenticatedTenantsDailyRoute
+  '/_authenticated/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/my'
+    | '/rooms'
+    | '/tenants/daily'
+    | '/tenants/monthly'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/my'
+    | '/rooms'
+    | '/tenants/daily'
+    | '/tenants/monthly'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/my'
+    | '/_authenticated/rooms'
+    | '/_authenticated/tenants/daily'
+    | '/_authenticated/tenants/monthly'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +135,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my': {
+      id: '/_authenticated/my'
+      path: '/my'
+      fullPath: '/my'
+      preLoaderRoute: typeof AuthenticatedMyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rooms': {
+      id: '/_authenticated/rooms'
+      path: '/rooms'
+      fullPath: '/rooms'
+      preLoaderRoute: typeof AuthenticatedRoomsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenants/daily': {
+      id: '/_authenticated/tenants/daily'
+      path: '/tenants/daily'
+      fullPath: '/tenants/daily'
+      preLoaderRoute: typeof AuthenticatedTenantsDailyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenants/monthly': {
+      id: '/_authenticated/tenants/monthly'
+      path: '/tenants/monthly'
+      fullPath: '/tenants/monthly'
+      preLoaderRoute: typeof AuthenticatedTenantsMonthlyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedMyRoute: typeof AuthenticatedMyRoute
+  AuthenticatedRoomsRoute: typeof AuthenticatedRoomsRoute
+  AuthenticatedTenantsDailyRoute: typeof AuthenticatedTenantsDailyRoute
+  AuthenticatedTenantsMonthlyRoute: typeof AuthenticatedTenantsMonthlyRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedMyRoute: AuthenticatedMyRoute,
+  AuthenticatedRoomsRoute: AuthenticatedRoomsRoute,
+  AuthenticatedTenantsDailyRoute: AuthenticatedTenantsDailyRoute,
+  AuthenticatedTenantsMonthlyRoute: AuthenticatedTenantsMonthlyRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
