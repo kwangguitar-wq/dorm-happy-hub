@@ -79,9 +79,42 @@ function BillsPage() {
     qc.invalidateQueries({ queryKey: ["settings"] });
   }
 
-  async function togglePaid(id: string, status: string) {
-    await supabase.from("bills").update({ status: status === "paid" ? "unpaid" : "paid" }).eq("id", id);
+  async function togglePaid(b: (typeof bills)[number]) {
+    if (b.status === "paid") {
+      await supabase.from("bills").update({ status: "unpaid", paid_at: null }).eq("id", b.id);
+    } else {
+      const paidCount = bills.filter((x) => x.receipt_no).length;
+      const ym = b.bill_month.slice(0, 7).replace("-", "");
+      const receipt_no = b.receipt_no ?? `RC${ym}-${String(paidCount + 1).padStart(4, "0")}`;
+      await supabase.from("bills").update({ status: "paid", paid_at: new Date().toISOString(), receipt_no }).eq("id", b.id);
+    }
     qc.invalidateQueries({ queryKey: ["bills"] });
+  }
+
+  function printReceipt(b: (typeof bills)[number]) {
+    const wUnits = units(b.water_prev, b.water_curr);
+    const eUnits = units(b.electric_prev, b.electric_curr);
+    const row = (label: string, val: string) =>
+      `<tr><td style="padding:6px 0">${label}</td><td style="text-align:right;padding:6px 0">${val}</td></tr>`;
+    const html = `<!doctype html><html lang="th"><head><meta charset="utf-8"><title>ใบเสร็จ ${b.receipt_no}</title>
+<style>body{font-family:'Sarabun',Tahoma,sans-serif;max-width:640px;margin:24px auto;color:#111;padding:0 16px}
+table{width:100%;border-collapse:collapse} .line td{border-top:1px solid #ddd}
+h1{font-size:22px;margin:0} .muted{color:#666;font-size:13px}
+.total td{font-size:18px;font-weight:700;border-top:2px solid #111}</style></head><body>
+<h1>ใบเสร็จรับเงิน</h1>
+<div class="muted">ห้องพักบาบรีส แม่ปะ</div>
+<p class="muted">เลขที่ ${b.receipt_no ?? "-"} · วันที่ชำระ ${b.paid_at ? new Date(b.paid_at).toLocaleDateString("th-TH", { dateStyle: "long" }) : "-"}<br>
+ห้อง ${b.rooms?.room_number ?? ""} · ประจำเดือน ${new Date(b.bill_month).toLocaleDateString("th-TH", { month: "long", year: "numeric" })}</p>
+<table>
+${row(`ค่าเช่าห้อง`, baht(b.rent))}
+${row(`ค่าน้ำ ${wUnits} หน่วย × ${baht(b.water_rate)}`, baht(wUnits * b.water_rate))}
+${row(`ค่าไฟ ${eUnits} หน่วย × ${baht(b.electric_rate)}`, baht(eUnits * b.electric_rate))}
+<tr class="total line"><td style="padding:10px 0">รวมทั้งสิ้น</td><td style="text-align:right;padding:10px 0">${baht(b.total)}</td></tr>
+</table>
+<p class="muted" style="margin-top:32px">ลงชื่อผู้รับเงิน ______________________</p>
+<script>window.print()</script></body></html>`;
+    const win = window.open("", "_blank", "width=720,height=800");
+    if (win) { win.document.write(html); win.document.close(); }
   }
 
   return (
