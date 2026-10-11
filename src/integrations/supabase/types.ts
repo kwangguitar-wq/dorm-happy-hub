@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      bills: {
+        Row: {
+          bill_month: string
+          created_at: string
+          electric_curr: number
+          electric_prev: number
+          electric_rate: number
+          id: string
+          rent: number
+          rental_id: string | null
+          room_id: string
+          status: string
+          tenant_user_id: string | null
+          total: number
+          water_curr: number
+          water_prev: number
+          water_rate: number
+        }
+        Insert: {
+          bill_month: string
+          created_at?: string
+          electric_curr?: number
+          electric_prev?: number
+          electric_rate?: number
+          id?: string
+          rent?: number
+          rental_id?: string | null
+          room_id: string
+          status?: string
+          tenant_user_id?: string | null
+          total?: number
+          water_curr?: number
+          water_prev?: number
+          water_rate?: number
+        }
+        Update: {
+          bill_month?: string
+          created_at?: string
+          electric_curr?: number
+          electric_prev?: number
+          electric_rate?: number
+          id?: string
+          rent?: number
+          rental_id?: string | null
+          room_id?: string
+          status?: string
+          tenant_user_id?: string | null
+          total?: number
+          water_curr?: number
+          water_prev?: number
+          water_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bills_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -130,6 +199,27 @@ export type Database = {
           room_number?: string
           room_type?: string
           status?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          electric_rate: number
+          id: number
+          updated_at: string
+          water_rate: number
+        }
+        Insert: {
+          electric_rate?: number
+          id?: number
+          updated_at?: string
+          water_rate?: number
+        }
+        Update: {
+          electric_rate?: number
+          id?: number
+          updated_at?: string
+          water_rate?: number
         }
         Relationships: []
       }
