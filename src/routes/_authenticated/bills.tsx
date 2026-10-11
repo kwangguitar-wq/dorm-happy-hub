@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Settings2 } from "lucide-react";
+import { Plus, ReceiptText, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
@@ -148,9 +148,16 @@ ${row(`ค่าไฟ ${eUnits} หน่วย × ${baht(b.electric_rate)}`, b
                 <td className="p-3">{baht(b.rent)}</td>
                 <td className="p-3 font-semibold">{baht(b.total)}</td>
                 <td className="p-3">
-                  <button onClick={() => togglePaid(b.id, b.status)}>
-                    <Badge variant={b.status === "paid" ? "default" : "secondary"}>{b.status === "paid" ? "ชำระแล้ว" : "ค้างชำระ"}</Badge>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => togglePaid(b)}>
+                      <Badge variant={b.status === "paid" ? "default" : "secondary"}>{b.status === "paid" ? "ชำระแล้ว" : "ค้างชำระ"}</Badge>
+                    </button>
+                    {b.status === "paid" && (
+                      <Button variant="ghost" size="sm" onClick={() => printReceipt(b)} title={`ใบเสร็จ ${b.receipt_no ?? ""}`}>
+                        <ReceiptText /> {b.receipt_no}
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
