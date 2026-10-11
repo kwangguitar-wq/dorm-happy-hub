@@ -8,6 +8,13 @@
       "when": 1791534368598,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791686443764,
+      "tag": "0001_bills_settings",
+      "breakpoints": true
     }
   ]
 }
