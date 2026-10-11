@@ -15,6 +15,13 @@
       "when": 1791686443764,
       "tag": "0001_bills_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791692797270,
+      "tag": "0002_bills_receipt_fields",
+      "breakpoints": true
     }
   ]
 }

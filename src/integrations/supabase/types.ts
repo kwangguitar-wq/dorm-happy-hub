@@ -22,6 +22,8 @@ export type Database = {
           electric_prev: number
           electric_rate: number
           id: string
+          paid_at: string | null
+          receipt_no: string | null
           rent: number
           rental_id: string | null
           room_id: string
@@ -39,6 +41,8 @@ export type Database = {
           electric_prev?: number
           electric_rate?: number
           id?: string
+          paid_at?: string | null
+          receipt_no?: string | null
           rent?: number
           rental_id?: string | null
           room_id: string
@@ -56,6 +60,8 @@ export type Database = {
           electric_prev?: number
           electric_rate?: number
           id?: string
+          paid_at?: string | null
+          receipt_no?: string | null
           rent?: number
           rental_id?: string | null
           room_id?: string
