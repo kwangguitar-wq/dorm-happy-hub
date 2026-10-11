@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { BedDouble, CalendarDays, Home, LayoutDashboard, LogOut, Menu, Users, X } from "lucide-react";
+import { BedDouble, CalendarDays, Home, LayoutDashboard, LogOut, Menu, Receipt, Users, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DORM_NAME, meQuery, roleLabel } from "@/lib/dorm";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const staffNav = [
   { to: "/rooms", label: "ห้องพัก", icon: BedDouble },
   { to: "/tenants/daily", label: "ผู้เช่ารายวัน", icon: CalendarDays },
   { to: "/tenants/monthly", label: "ผู้เช่ารายเดือน", icon: Users },
+  { to: "/bills", label: "มิเตอร์และบิล", icon: Receipt },
 ] as const;
 const tenantNav = [{ to: "/my", label: "ห้องของฉัน", icon: Home }] as const;
 
