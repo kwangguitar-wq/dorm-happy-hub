@@ -89,6 +89,53 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string
+          id: string
+          note: string | null
+          paid_on: string
+          reviewed_at: string | null
+          slip_path: string | null
+          status: string
+          tenant_user_id: string
+        }
+        Insert: {
+          amount?: number
+          bill_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          paid_on?: string
+          reviewed_at?: string | null
+          slip_path?: string | null
+          status?: string
+          tenant_user_id?: string
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          paid_on?: string
+          reviewed_at?: string | null
+          slip_path?: string | null
+          status?: string
+          tenant_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
