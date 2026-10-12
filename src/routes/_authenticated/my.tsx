@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { baht, meQuery, rentalsQuery, thDate } from "@/lib/dorm";
 import { Field } from "./rooms";
 import { payStatus } from "./payments";
+import { RepairsPanel } from "@/components/RepairsPanel";
 
 export const Route = createFileRoute("/_authenticated/my")({
   head: () => ({ meta: [{ title: "ห้องของฉัน — บาบรีส แม่ปะ" }] }),
@@ -98,6 +99,9 @@ function MyRoom() {
           );
         })}
       </div>
+
+      <h3 className="mb-3 mt-8 text-lg font-semibold">แจ้งซ่อม</h3>
+      <RepairsPanel staff={false} roomId={mine[0]?.room_id} />
 
       <Dialog open={!!bill} onOpenChange={(o) => !o && setBill(null)}>
         <DialogContent>

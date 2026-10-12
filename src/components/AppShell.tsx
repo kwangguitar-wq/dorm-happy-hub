@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { BedDouble, CalendarDays, Wallet, Home, LayoutDashboard, LogOut, Menu, Receipt, Users, X } from "lucide-react";
+import { BedDouble, CalendarDays, Wallet, Wrench, Home, LayoutDashboard, LogOut, Menu, Receipt, Users, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DORM_NAME, meQuery, roleLabel } from "@/lib/dorm";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const staffNav = [
   { to: "/tenants/monthly", label: "ผู้เช่ารายเดือน", icon: Users },
   { to: "/bills", label: "มิเตอร์และบิล", icon: Receipt },
   { to: "/payments", label: "ตรวจสอบการชำระ", icon: Wallet },
+  { to: "/repairs", label: "แจ้งซ่อม", icon: Wrench },
 ] as const;
 const tenantNav = [{ to: "/my", label: "ห้องของฉัน", icon: Home }] as const;
 
