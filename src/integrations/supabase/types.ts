@@ -219,6 +219,50 @@ export type Database = {
           },
         ]
       }
+      repairs: {
+        Row: {
+          created_at: string
+          detail: string | null
+          id: string
+          room_id: string | null
+          staff_note: string | null
+          status: string
+          tenant_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          room_id?: string | null
+          staff_note?: string | null
+          status?: string
+          tenant_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          id?: string
+          room_id?: string | null
+          staff_note?: string | null
+          status?: string
+          tenant_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repairs_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rooms: {
         Row: {
           created_at: string
