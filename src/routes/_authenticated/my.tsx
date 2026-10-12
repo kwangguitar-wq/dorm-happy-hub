@@ -101,7 +101,7 @@ function MyRoom() {
       </div>
 
       <h3 className="mb-3 mt-8 text-lg font-semibold">แจ้งซ่อม</h3>
-      <RepairsPanel staff={false} roomId={mine[0]?.room_id} />
+      <RepairsPanel staff={false} roomId={mine[0]?.room_id ?? null} />
 
       <Dialog open={!!bill} onOpenChange={(o) => !o && setBill(null)}>
         <DialogContent>
