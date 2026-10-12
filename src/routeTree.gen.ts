@@ -16,6 +16,7 @@ import { Route as AuthenticatedBillsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedMyRouteImport } from './routes/_authenticated/my'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
+import { Route as AuthenticatedRepairsRouteImport } from './routes/_authenticated/repairs'
 import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/rooms'
 import { Route as AuthenticatedTenantsDailyRouteImport } from './routes/_authenticated/tenants.daily'
 import { Route as AuthenticatedTenantsMonthlyRouteImport } from './routes/_authenticated/tenants.monthly'
@@ -54,6 +55,11 @@ const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRepairsRoute = AuthenticatedRepairsRouteImport.update({
+  id: '/repairs',
+  path: '/repairs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRoomsRoute = AuthenticatedRoomsRouteImport.update({
   id: '/rooms',
   path: '/rooms',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my': typeof AuthenticatedMyRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/repairs': typeof AuthenticatedRepairsRoute
   '/rooms': typeof AuthenticatedRoomsRoute
   '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/my': typeof AuthenticatedMyRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/repairs': typeof AuthenticatedRepairsRoute
   '/rooms': typeof AuthenticatedRoomsRoute
   '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/my': typeof AuthenticatedMyRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
+  '/_authenticated/repairs': typeof AuthenticatedRepairsRoute
   '/_authenticated/rooms': typeof AuthenticatedRoomsRoute
   '/_authenticated/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/_authenticated/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/my'
     | '/payments'
+    | '/repairs'
     | '/rooms'
     | '/tenants/daily'
     | '/tenants/monthly'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/my'
     | '/payments'
+    | '/repairs'
     | '/rooms'
     | '/tenants/daily'
     | '/tenants/monthly'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/my'
     | '/_authenticated/payments'
+    | '/_authenticated/repairs'
     | '/_authenticated/rooms'
     | '/_authenticated/tenants/daily'
     | '/_authenticated/tenants/monthly'
@@ -201,6 +213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/repairs': {
+      id: '/_authenticated/repairs'
+      path: '/repairs'
+      fullPath: '/repairs'
+      preLoaderRoute: typeof AuthenticatedRepairsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/rooms': {
       id: '/_authenticated/rooms'
       path: '/rooms'
@@ -230,6 +249,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMyRoute: typeof AuthenticatedMyRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
+  AuthenticatedRepairsRoute: typeof AuthenticatedRepairsRoute
   AuthenticatedRoomsRoute: typeof AuthenticatedRoomsRoute
   AuthenticatedTenantsDailyRoute: typeof AuthenticatedTenantsDailyRoute
   AuthenticatedTenantsMonthlyRoute: typeof AuthenticatedTenantsMonthlyRoute
@@ -240,6 +260,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMyRoute: AuthenticatedMyRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
+  AuthenticatedRepairsRoute: AuthenticatedRepairsRoute,
   AuthenticatedRoomsRoute: AuthenticatedRoomsRoute,
   AuthenticatedTenantsDailyRoute: AuthenticatedTenantsDailyRoute,
   AuthenticatedTenantsMonthlyRoute: AuthenticatedTenantsMonthlyRoute,
