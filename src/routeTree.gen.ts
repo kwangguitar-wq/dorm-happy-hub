@@ -19,6 +19,7 @@ import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRepairsRouteImport } from './routes/_authenticated/repairs'
 import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedRoomsRouteImport } from './routes/_authenticated/rooms'
+import { Route as AuthenticatedUsersRouteImport } from './routes/_authenticated/users'
 import { Route as AuthenticatedTenantsDailyRouteImport } from './routes/_authenticated/tenants.daily'
 import { Route as AuthenticatedTenantsMonthlyRouteImport } from './routes/_authenticated/tenants.monthly'
 
@@ -71,6 +72,11 @@ const AuthenticatedRoomsRoute = AuthenticatedRoomsRouteImport.update({
   path: '/rooms',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedUsersRoute = AuthenticatedUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTenantsDailyRoute =
   AuthenticatedTenantsDailyRouteImport.update({
     id: '/tenants/daily',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/repairs': typeof AuthenticatedRepairsRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rooms': typeof AuthenticatedRoomsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/repairs': typeof AuthenticatedRepairsRoute
   '/reports': typeof AuthenticatedReportsRoute
   '/rooms': typeof AuthenticatedRoomsRoute
+  '/users': typeof AuthenticatedUsersRoute
   '/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/repairs': typeof AuthenticatedRepairsRoute
   '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/rooms': typeof AuthenticatedRoomsRoute
+  '/_authenticated/users': typeof AuthenticatedUsersRoute
   '/_authenticated/tenants/daily': typeof AuthenticatedTenantsDailyRoute
   '/_authenticated/tenants/monthly': typeof AuthenticatedTenantsMonthlyRoute
 }
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/repairs'
     | '/reports'
     | '/rooms'
+    | '/users'
     | '/tenants/daily'
     | '/tenants/monthly'
   fileRoutesByTo: FileRoutesByTo
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/repairs'
     | '/reports'
     | '/rooms'
+    | '/users'
     | '/tenants/daily'
     | '/tenants/monthly'
   id:
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_authenticated/repairs'
     | '/_authenticated/reports'
     | '/_authenticated/rooms'
+    | '/_authenticated/users'
     | '/_authenticated/tenants/daily'
     | '/_authenticated/tenants/monthly'
   fileRoutesById: FileRoutesById
@@ -246,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRoomsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/users': {
+      id: '/_authenticated/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AuthenticatedUsersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tenants/daily': {
       id: '/_authenticated/tenants/daily'
       path: '/tenants/daily'
@@ -271,6 +290,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRepairsRoute: typeof AuthenticatedRepairsRoute
   AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedRoomsRoute: typeof AuthenticatedRoomsRoute
+  AuthenticatedUsersRoute: typeof AuthenticatedUsersRoute
   AuthenticatedTenantsDailyRoute: typeof AuthenticatedTenantsDailyRoute
   AuthenticatedTenantsMonthlyRoute: typeof AuthenticatedTenantsMonthlyRoute
 }
@@ -283,6 +303,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRepairsRoute: AuthenticatedRepairsRoute,
   AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedRoomsRoute: AuthenticatedRoomsRoute,
+  AuthenticatedUsersRoute: AuthenticatedUsersRoute,
   AuthenticatedTenantsDailyRoute: AuthenticatedTenantsDailyRoute,
   AuthenticatedTenantsMonthlyRoute: AuthenticatedTenantsMonthlyRoute,
 }
