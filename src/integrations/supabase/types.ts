@@ -358,6 +358,7 @@ export type Database = {
         Args: { _rental_id: string; _user_id: string }
         Returns: undefined
       }
+      mark_bill_paid: { Args: { _bill_id: string }; Returns: string }
       set_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

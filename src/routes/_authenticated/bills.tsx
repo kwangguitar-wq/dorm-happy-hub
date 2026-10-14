@@ -83,10 +83,8 @@ function BillsPage() {
     if (b.status === "paid") {
       await supabase.from("bills").update({ status: "unpaid", paid_at: null }).eq("id", b.id);
     } else {
-      const paidCount = bills.filter((x) => x.receipt_no).length;
-      const ym = b.bill_month.slice(0, 7).replace("-", "");
-      const receipt_no = b.receipt_no ?? `RC${ym}-${String(paidCount + 1).padStart(4, "0")}`;
-      await supabase.from("bills").update({ status: "paid", paid_at: new Date().toISOString(), receipt_no }).eq("id", b.id);
+      const { error } = await supabase.rpc("mark_bill_paid", { _bill_id: b.id });
+      if (error) { toast.error(error.message); return; }
     }
     qc.invalidateQueries({ queryKey: ["bills"] });
   }
