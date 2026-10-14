@@ -37,6 +37,12 @@ function RoomsPage() {
       ? await supabase.from("rooms").update(row).eq("id", editing.id)
       : await supabase.from("rooms").insert(row);
     if (error) { toast.error(error.message); return; }
+    if (editing?.id) {
+      // keep the current monthly tenant's rent in sync with the room price
+      await supabase.from("rentals").update({ rate: row.monthly_rate })
+        .eq("room_id", editing.id).eq("status", "active").eq("rental_type", "monthly");
+      qc.invalidateQueries({ queryKey: ["rentals"] });
+    }
     toast.success("บันทึกแล้ว");
     setEditing(null);
     qc.invalidateQueries({ queryKey: ["rooms"] });

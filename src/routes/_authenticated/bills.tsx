@@ -40,6 +40,14 @@ function BillsPage() {
 
   const lastBill = bills.find((b) => b.room_id === roomId);
   const room = rooms.find((r) => r.id === roomId);
+  const { data: activeRental } = useQuery({
+    queryKey: ["active-rental", roomId],
+    enabled: !!roomId,
+    queryFn: async () =>
+      (await supabase.from("rentals").select("rate").eq("room_id", roomId).eq("status", "active")
+        .eq("rental_type", "monthly").maybeSingle()).data,
+  });
+  const defaultRent = activeRental?.rate ?? room?.monthly_rate ?? 0;
 
   async function create(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
