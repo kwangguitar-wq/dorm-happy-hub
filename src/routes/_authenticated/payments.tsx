@@ -43,10 +43,8 @@ function PaymentsPage() {
       .update({ status: ok ? "approved" : "rejected", reviewed_at: new Date().toISOString() }).eq("id", p.id);
     if (error) { toast.error(error.message); return; }
     if (ok && p.bills) {
-      const { count } = await supabase.from("bills").select("id", { count: "exact", head: true }).not("receipt_no", "is", null);
-      const ym = p.bills.bill_month.slice(0, 7).replace("-", "");
-      const receipt_no = p.bills.receipt_no ?? `RC${ym}-${String((count ?? 0) + 1).padStart(4, "0")}`;
-      await supabase.from("bills").update({ status: "paid", paid_at: new Date().toISOString(), receipt_no }).eq("id", p.bills.id);
+      const { error: e2 } = await supabase.rpc("mark_bill_paid", { _bill_id: p.bills.id });
+      if (e2) { toast.error(e2.message); return; }
     }
     toast.success(ok ? "ยืนยันการชำระแล้ว" : "ปฏิเสธรายการแล้ว");
     qc.invalidateQueries({ queryKey: ["payments"] });
