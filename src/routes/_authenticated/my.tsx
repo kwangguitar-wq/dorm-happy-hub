@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { baht, meQuery, rentalsQuery, thDate } from "@/lib/dorm";
+import { units } from "@/lib/billing";
 import { Field } from "./rooms";
 import { payStatus } from "./payments";
 import { RepairsPanel } from "@/components/RepairsPanel";
@@ -83,11 +84,21 @@ function MyRoom() {
         {bills.map((b) => {
           const last = [...(b.payments ?? [])].sort((a, z) => z.created_at.localeCompare(a.created_at))[0];
           const canPay = b.status !== "paid" && last?.status !== "pending";
+          const wU = units(b.water_prev, b.water_curr);
+          const eU = units(b.electric_prev, b.electric_curr);
           return (
             <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
               <div>
                 <p className="font-semibold">{new Date(b.bill_month).toLocaleDateString("th-TH", { month: "long", year: "numeric" })}</p>
-                <p className="text-sm text-muted-foreground">ยอด {baht(b.total)}</p>
+                <div className="mt-1 space-y-0.5 text-sm text-muted-foreground">
+                  <p>ค่าเช่าห้อง {baht(b.rent)}</p>
+                  <p>ค่าน้ำ {wU} หน่วย × {baht(b.water_rate)} = {baht(wU * b.water_rate)}</p>
+                  <p>ค่าไฟ {eU} หน่วย × {baht(b.electric_rate)} = {baht(eU * b.electric_rate)}</p>
+                  {Number(b.other_fee) > 0 && (
+                    <p>ค่าอื่นๆ{b.other_note ? ` (${b.other_note})` : ""} {baht(b.other_fee)}</p>
+                  )}
+                  <p className="font-semibold text-foreground">รวมทั้งสิ้น {baht(b.total)}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {b.status === "paid" ? <Badge>ชำระแล้ว</Badge>
@@ -106,6 +117,16 @@ function MyRoom() {
       <Dialog open={!!bill} onOpenChange={(o) => !o && setBill(null)}>
         <DialogContent>
           <DialogHeader><DialogTitle>แจ้งชำระเงิน</DialogTitle></DialogHeader>
+          {bill && (
+            <div className="space-y-0.5 rounded-lg bg-muted/50 p-3 text-sm">
+              <p className="font-medium">ห้อง {bill.rooms?.room_number} · {new Date(bill.bill_month).toLocaleDateString("th-TH", { month: "long", year: "numeric" })}</p>
+              <p className="text-muted-foreground">
+                ค่าเช่าห้อง {baht(bill.rent)} · ค่าน้ำ {units(bill.water_prev, bill.water_curr)} หน่วย ({baht(units(bill.water_prev, bill.water_curr) * bill.water_rate)}) · ค่าไฟ {units(bill.electric_prev, bill.electric_curr)} หน่วย ({baht(units(bill.electric_prev, bill.electric_curr) * bill.electric_rate)})
+                {Number(bill.other_fee) > 0 ? ` · ค่าอื่นๆ${bill.other_note ? ` (${bill.other_note})` : ""} ${baht(bill.other_fee)}` : ""}
+              </p>
+              <p className="font-semibold">ยอดที่ต้องชำระ {baht(bill.total)}</p>
+            </div>
+          )}
           <form key={bill?.id} onSubmit={submit} className="grid grid-cols-2 gap-3">
             <Field label="จำนวนเงิน" name="amount" type="number" step="any" defaultValue={bill?.total ?? 0} required />
             <Field label="วันที่โอน" name="paid_on" type="date" defaultValue={new Date().toISOString().slice(0, 10)} required />
