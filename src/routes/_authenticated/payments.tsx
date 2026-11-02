@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { baht, thDate } from "@/lib/dorm";
+import { units } from "@/lib/billing";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [{ title: "ตรวจสอบการชำระเงิน — บาบรีส แม่ปะ" }] }),
@@ -25,7 +26,7 @@ function PaymentsPage() {
     queryKey: ["payments"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("payments").select("*, bills(id, bill_month, total, receipt_no, rooms(room_number))")
+        .from("payments").select("*, bills(id, bill_month, total, receipt_no, rent, water_prev, water_curr, electric_prev, electric_curr, water_rate, electric_rate, other_fee, other_note, rooms(room_number))")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -65,6 +66,12 @@ function PaymentsPage() {
               <p className="text-sm text-muted-foreground">
                 โอน {baht(p.amount)} (ยอดบิล {baht(p.bills?.total)}) · วันที่ {thDate(p.paid_on)}
               </p>
+              {p.bills && (
+                <p className="text-xs text-muted-foreground">
+                  ค่าเช่า {baht(p.bills.rent)} · ค่าน้ำ {units(p.bills.water_prev, p.bills.water_curr)} หน่วย ({baht(units(p.bills.water_prev, p.bills.water_curr) * p.bills.water_rate)}) · ค่าไฟ {units(p.bills.electric_prev, p.bills.electric_curr)} หน่วย ({baht(units(p.bills.electric_prev, p.bills.electric_curr) * p.bills.electric_rate)})
+                  {Number(p.bills.other_fee) > 0 ? ` · ค่าอื่นๆ${p.bills.other_note ? ` (${p.bills.other_note})` : ""} ${baht(p.bills.other_fee)}` : ""}
+                </p>
+              )}
               {p.note && <p className="text-sm">{p.note}</p>}
             </div>
             <div className="flex items-center gap-2">

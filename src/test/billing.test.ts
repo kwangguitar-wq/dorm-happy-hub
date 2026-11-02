@@ -8,4 +8,7 @@ describe("billing", () => {
   it("never negative units", () => {
     expect(units(20, 10)).toBe(0);
   });
+  it("adds other fee to the total", () => {
+    expect(billTotal({ rent: 3000, water_prev: 0, water_curr: 0, electric_prev: 0, electric_curr: 0, water_rate: 18, electric_rate: 8, other_fee: 200 })).toBe(3200);
+  });
 });

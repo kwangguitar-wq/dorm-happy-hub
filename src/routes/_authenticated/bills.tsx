@@ -67,6 +67,8 @@ function BillsPage() {
       water_rate: Number(settings?.water_rate ?? 0),
       electric_rate: Number(settings?.electric_rate ?? 0),
       rent: Number(f.get("rent")),
+      other_fee: Number(f.get("other_fee") || 0),
+      other_note: String(f.get("other_note") || "") || null,
     };
     const { error } = await supabase.from("bills").insert({ ...row, total: billTotal(row) });
     if (error) { toast.error(error.message.includes("duplicate") ? "ห้องนี้มีบิลเดือนนี้แล้ว" : error.message); return; }
@@ -115,6 +117,7 @@ h1{font-size:22px;margin:0} .muted{color:#666;font-size:13px}
 ${row(`ค่าเช่าห้อง`, baht(b.rent))}
 ${row(`ค่าน้ำ ${wUnits} หน่วย × ${baht(b.water_rate)}`, baht(wUnits * b.water_rate))}
 ${row(`ค่าไฟ ${eUnits} หน่วย × ${baht(b.electric_rate)}`, baht(eUnits * b.electric_rate))}
+${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note})` : ""}`, baht(b.other_fee)) : ""}
 <tr class="total line"><td style="padding:10px 0">รวมทั้งสิ้น</td><td style="text-align:right;padding:10px 0">${baht(b.total)}</td></tr>
 </table>
 <p class="muted" style="margin-top:32px">ลงชื่อผู้รับเงิน ______________________</p>
@@ -183,6 +186,10 @@ ${row(`ค่าไฟ ${eUnits} หน่วย × ${baht(b.electric_rate)}`, b
             </div>
             <Field label="เดือน" name="month" type="month" defaultValue={thisMonth()} required />
             <Field label="ค่าเช่า" name="rent" type="number" defaultValue={room?.monthly_rate ?? 0} />
+            <div className="col-span-2 grid grid-cols-2 gap-3">
+              <Field label="ค่าอื่นๆ (บาท)" name="other_fee" type="number" step="any" defaultValue={0} />
+              <Field label="รายละเอียดค่าอื่นๆ" name="other_note" defaultValue="" />
+            </div>
             <Field label="มิเตอร์น้ำ ครั้งก่อน" name="water_prev" type="number" step="any" defaultValue={lastBill?.water_curr ?? 0} />
             <Field label="มิเตอร์น้ำ ครั้งนี้" name="water_curr" type="number" step="any" required />
             <Field label="มิเตอร์ไฟ ครั้งก่อน" name="electric_prev" type="number" step="any" defaultValue={lastBill?.electric_curr ?? 0} />
