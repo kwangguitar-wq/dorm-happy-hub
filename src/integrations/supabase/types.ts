@@ -17,7 +17,9 @@ export type Database = {
       bills: {
         Row: {
           bill_month: string
+          bill_no: string | null
           created_at: string
+          due_date: string | null
           electric_curr: number
           electric_prev: number
           electric_rate: number
@@ -38,7 +40,9 @@ export type Database = {
         }
         Insert: {
           bill_month: string
+          bill_no?: string | null
           created_at?: string
+          due_date?: string | null
           electric_curr?: number
           electric_prev?: number
           electric_rate?: number
@@ -59,7 +63,9 @@ export type Database = {
         }
         Update: {
           bill_month?: string
+          bill_no?: string | null
           created_at?: string
+          due_date?: string | null
           electric_curr?: number
           electric_prev?: number
           electric_rate?: number
@@ -97,6 +103,9 @@ export type Database = {
       }
       payments: {
         Row: {
+          ai_amount: number | null
+          ai_checked_at: string | null
+          ai_paid_on: string | null
           amount: number
           bill_id: string
           created_at: string
@@ -109,6 +118,9 @@ export type Database = {
           tenant_user_id: string
         }
         Insert: {
+          ai_amount?: number | null
+          ai_checked_at?: string | null
+          ai_paid_on?: string | null
           amount?: number
           bill_id: string
           created_at?: string
@@ -121,6 +133,9 @@ export type Database = {
           tenant_user_id?: string
         }
         Update: {
+          ai_amount?: number | null
+          ai_checked_at?: string | null
+          ai_paid_on?: string | null
           amount?: number
           bill_id?: string
           created_at?: string
