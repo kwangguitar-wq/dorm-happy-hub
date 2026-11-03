@@ -13,7 +13,7 @@ import { billTotal, units } from "@/lib/billing";
 import { Field } from "./rooms";
 
 export const Route = createFileRoute("/_authenticated/bills")({
-  head: () => ({ meta: [{ title: "มิเตอร์และบิล — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "มิเตอร์และบิล — แม่ปะ 409" }] }),
   component: BillsPage,
 });
 
@@ -110,7 +110,7 @@ table{width:100%;border-collapse:collapse} .line td{border-top:1px solid #ddd}
 h1{font-size:22px;margin:0} .muted{color:#666;font-size:13px}
 .total td{font-size:18px;font-weight:700;border-top:2px solid #111}</style></head><body>
 <h1>ใบเสร็จรับเงิน</h1>
-<div class="muted">ห้องพักบาบรีส แม่ปะ</div>
+<div class="muted">ห้องพักแม่ปะ 409</div>
 <p class="muted">เลขที่ ${b.receipt_no ?? "-"} · วันที่ชำระ ${b.paid_at ? new Date(b.paid_at).toLocaleDateString("th-TH", { dateStyle: "long" }) : "-"}<br>
 ห้อง ${b.rooms?.room_number ?? ""} · ประจำเดือน ${new Date(b.bill_month).toLocaleDateString("th-TH", { month: "long", year: "numeric" })}</p>
 <table>

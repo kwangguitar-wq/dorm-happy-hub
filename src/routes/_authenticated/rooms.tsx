@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { baht, roomsQuery, roomStatusLabel, type Room } from "@/lib/dorm";
 
 export const Route = createFileRoute("/_authenticated/rooms")({
-  head: () => ({ meta: [{ title: "ห้องพัก — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "ห้องพัก — แม่ปะ 409" }] }),
   component: RoomsPage,
 });
 
