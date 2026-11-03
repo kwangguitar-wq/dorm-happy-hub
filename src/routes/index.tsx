@@ -6,7 +6,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: `${DORM_NAME} — ระบบจัดการหอพัก` },
-      { name: "description", content: "จัดการห้องพัก ผู้เช่า บิลค่าน้ำค่าไฟ และการชำระเงินของหอพักบาบรีส แม่ปะ" },
+      { name: "description", content: "จัดการห้องพัก ผู้เช่า บิลค่าน้ำค่าไฟ และการชำระเงินของหอพักแม่ปะ 409" },
       { property: "og:title", content: `${DORM_NAME} — ระบบจัดการหอพัก` },
       { property: "og:description", content: "จัดการห้องพัก ผู้เช่า และบิลได้ทุกที่ทุกอุปกรณ์" },
     ],

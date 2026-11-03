@@ -6,7 +6,7 @@ import { baht, rentalsQuery, roomsQuery, roomStatusLabel, thDate } from "@/lib/d
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "แดชบอร์ด — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "แดชบอร์ด — แม่ปะ 409" }] }),
   component: Dashboard,
 });
 

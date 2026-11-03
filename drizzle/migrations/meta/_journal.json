@@ -57,6 +57,13 @@
       "when": 1793602060265,
       "tag": "0007_create_bills_other_fee",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793692370505,
+      "tag": "0008_security_and_invoice_columns",
+      "breakpoints": true
     }
   ]
 }

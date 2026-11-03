@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/AppShell";
 import { meQuery, pickRole, rentalsQuery, roleLabel, type Role } from "@/lib/dorm";
 
 export const Route = createFileRoute("/_authenticated/users")({
-  head: () => ({ meta: [{ title: "จัดการผู้ใช้ — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "จัดการผู้ใช้ — แม่ปะ 409" }] }),
   component: Users,
 });
 

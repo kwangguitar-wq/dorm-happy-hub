@@ -7,7 +7,7 @@ import { baht } from "@/lib/dorm";
 import { units } from "@/lib/billing";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [{ title: "รายงาน — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "รายงาน — แม่ปะ 409" }] }),
   component: Reports,
 });
 

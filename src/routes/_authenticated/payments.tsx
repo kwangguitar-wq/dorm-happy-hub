@@ -10,7 +10,7 @@ import { baht, thDate } from "@/lib/dorm";
 import { units } from "@/lib/billing";
 
 export const Route = createFileRoute("/_authenticated/payments")({
-  head: () => ({ meta: [{ title: "ตรวจสอบการชำระเงิน — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "ตรวจสอบการชำระเงิน — แม่ปะ 409" }] }),
   component: PaymentsPage,
 });
 

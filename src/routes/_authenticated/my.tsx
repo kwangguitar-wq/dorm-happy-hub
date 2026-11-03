@@ -14,7 +14,7 @@ import { payStatus } from "./payments";
 import { RepairsPanel } from "@/components/RepairsPanel";
 
 export const Route = createFileRoute("/_authenticated/my")({
-  head: () => ({ meta: [{ title: "ห้องของฉัน — บาบรีส แม่ปะ" }] }),
+  head: () => ({ meta: [{ title: "ห้องของฉัน — แม่ปะ 409" }] }),
   component: MyRoom,
 });
 
