@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, ReceiptText, Settings2 } from "lucide-react";
+import { Plus, Printer, ReceiptText, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { baht, roomsQuery } from "@/lib/dorm";
 import { billTotal, units } from "@/lib/billing";
+import { printInvoice } from "@/lib/invoice";
 import { Field } from "./rooms";
 
 export const Route = createFileRoute("/_authenticated/bills")({
@@ -164,6 +165,11 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
                     {b.status === "paid" && (
                       <Button variant="ghost" size="sm" onClick={() => printReceipt(b)} title={`ใบเสร็จ ${b.receipt_no ?? ""}`}>
                         <ReceiptText /> {b.receipt_no}
+                      </Button>
+                    )}
+                    {b.status !== "paid" && (
+                      <Button variant="ghost" size="sm" onClick={() => printInvoice(b)} title="พิมพ์ใบแจ้งหนี้">
+                        <Printer /> ใบแจ้งหนี้
                       </Button>
                     )}
                   </div>
