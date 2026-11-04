@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Image, X } from "lucide-react";
+import { useState } from "react";
+import { Check, Image, ScanLine, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { baht, thDate } from "@/lib/dorm";
 import { units } from "@/lib/billing";
+import { readSlipWithAIFn } from "@/lib/slip-reader.functions";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [{ title: "ตรวจสอบการชำระเงิน — แม่ปะ 409" }] }),
@@ -20,8 +22,17 @@ export const payStatus: Record<string, { label: string; v: "default" | "secondar
   rejected: { label: "ไม่ผ่าน", v: "destructive" },
 };
 
+type AiRead = {
+  loading: boolean;
+  amount?: number | null;
+  paid_on?: string | null;
+  bank?: string | null;
+  error?: string;
+};
+
 function PaymentsPage() {
   const qc = useQueryClient();
+  const [ai, setAi] = useState<Record<string, AiRead>>({});
   const { data: list = [] } = useQuery({
     queryKey: ["payments"],
     queryFn: async () => {
