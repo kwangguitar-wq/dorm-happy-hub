@@ -44,6 +44,18 @@ function PaymentsPage() {
     },
   });
 
+  async function readAi(p: (typeof list)[number]) {
+    setAi((s) => ({ ...s, [p.id]: { loading: true } }));
+    const res = await readSlipWithAIFn({ data: { paymentId: p.id } });
+    setAi((s) => ({
+      ...s,
+      [p.id]: res.ok
+        ? { loading: false, amount: res.ai_amount, paid_on: res.ai_paid_on, bank: res.ai_bank }
+        : { loading: false, error: res.error },
+    }));
+    qc.invalidateQueries({ queryKey: ["payments"] });
+  }
+
   async function viewSlip(path: string) {
     const { data, error } = await supabase.storage.from("slips").createSignedUrl(path, 300);
     if (error) { toast.error(error.message); return; }
@@ -84,10 +96,41 @@ function PaymentsPage() {
                 </p>
               )}
               {p.note && <p className="text-sm">{p.note}</p>}
+              {ai[p.id] && (
+                <div className="mt-2 space-y-0.5 rounded-lg border bg-muted/30 p-2.5 text-sm">
+                  {ai[p.id].loading ? (
+                    <p className="text-muted-foreground">AI กำลังอ่านสลิป...</p>
+                  ) : ai[p.id].error ? (
+                    <p className="text-destructive">{ai[p.id].error}</p>
+                  ) : (() => {
+                    const amt = ai[p.id].amount ?? null;
+                    const aiDate = ai[p.id].paid_on ?? null;
+                    const amountOk = amt != null && p.bills != null && Math.abs(amt - Number(p.bills.total)) < 1;
+                    const dateOk = aiDate != null && p.paid_on != null && aiDate === p.paid_on;
+                    return (
+                      <>
+                        <p className="font-medium">ผลอ่านสลิปด้วย AI{ai[p.id].bank ? ` · ${ai[p.id].bank}` : ""}</p>
+                        <p className={amountOk ? "text-muted-foreground" : "font-medium text-destructive"}>
+                          ยอดที่โอน {amt != null ? baht(amt) : "อ่านไม่ออก"}
+                          {p.bills ? ` (ยอดบิล ${baht(p.bills.total)})` : ""}
+                          {p.bills && amt != null && !amountOk ? " — ไม่ตรงกับยอดบิล กรุณาตรวจสอบ" : ""}
+                        </p>
+                        <p className={dateOk ? "text-muted-foreground" : aiDate == null || p.paid_on == null ? "text-muted-foreground" : "font-medium text-destructive"}>
+                          วันที่โอนตามสลิป {aiDate ? thDate(aiDate) : "อ่านไม่ออก"}
+                          {p.paid_on ? ` (วันที่แจ้ง ${thDate(p.paid_on)})` : ""}
+                          {!dateOk && aiDate != null && p.paid_on != null ? " — ไม่ตรงกับที่แจ้ง กรุณาตรวจสอบ" : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground">ตรวจสอบด้วยตนเองก่อนกดยืนยัน ผล AI ไม่เปลี่ยนสถานะการชำระโดยอัตโนมัติ</p>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={payStatus[p.status]?.v}>{payStatus[p.status]?.label}</Badge>
               {p.slip_path && <Button size="sm" variant="outline" onClick={() => viewSlip(p.slip_path!)}><Image /> สลิป</Button>}
+              {p.slip_path && <Button size="sm" variant="outline" onClick={() => readAi(p)}><ScanLine /> อ่านสลิป (AI)</Button>}
               {p.status === "pending" && (
                 <>
                   <Button size="sm" onClick={() => review(p, true)}><Check /> ยืนยัน</Button>
