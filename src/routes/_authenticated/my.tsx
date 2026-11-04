@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { baht, meQuery, rentalsQuery, thDate } from "@/lib/dorm";
 import { units } from "@/lib/billing";
+import { printInvoice } from "@/lib/invoice";
 import { Field } from "./rooms";
 import { payStatus } from "./payments";
 import { RepairsPanel } from "@/components/RepairsPanel";
@@ -104,6 +105,9 @@ function MyRoom() {
                 {b.status === "paid" ? <Badge>ชำระแล้ว</Badge>
                   : last ? <Badge variant={payStatus[last.status]?.v}>{payStatus[last.status]?.label}</Badge>
                   : <Badge variant="secondary">ค้างชำระ</Badge>}
+                {b.status !== "paid" && (
+                  <Button size="sm" variant="outline" onClick={() => printInvoice(b)}>ใบแจ้งหนี้</Button>
+                )}
                 {canPay && <Button size="sm" onClick={() => setBill(b)}>แจ้งชำระ</Button>}
               </div>
             </div>
