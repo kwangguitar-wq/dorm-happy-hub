@@ -100,11 +100,10 @@ function PaymentsPage() {
                 <div className="mt-2 space-y-0.5 rounded-lg border bg-muted/30 p-2.5 text-sm">
                   {ai[p.id].loading ? (
                     <p className="text-muted-foreground">AI กำลังอ่านสลิป...</p>
-                  ) : ai[p.id].error ? (
-                    <p className="text-destructive">{ai[p.id].error}</p>
-                  ) : (() => {
-                    const amt = ai[p.id].amount ?? null;
-                    const aiDate = ai[p.id].paid_on ?? null;
+                  ) : ai[p.id] && !ai[p.id].loading && !ai[p.id].error ? (() => {
+                    const read = ai[p.id]!;
+                    const amt = read.amount ?? null;
+                    const aiDate = read.paid_on ?? null;
                     const amountOk = amt != null && p.bills != null && Math.abs(amt - Number(p.bills.total)) < 1;
                     const dateOk = aiDate != null && p.paid_on != null && aiDate === p.paid_on;
                     return (
