@@ -112,7 +112,7 @@ function PaymentsPage() {
                     const dateOk = aiDate != null && p.paid_on != null && aiDate === p.paid_on;
                     return (
                       <>
-                        <p className="font-medium">ผลอ่านสลิปด้วย AI{read.bank ? ` · ${read.bank}` : ""}</p>
+                        <p className="font-medium">ผลอ่านสลิปด้วย AI{cur.bank ? ` · ${cur.bank}` : ""}</p>
                         <p className={amountOk ? "text-muted-foreground" : "font-medium text-destructive"}>
                           ยอดที่โอน {amt != null ? baht(amt) : "อ่านไม่ออก"}
                           {p.bills ? ` (ยอดบิล ${baht(p.bills.total)})` : ""}
