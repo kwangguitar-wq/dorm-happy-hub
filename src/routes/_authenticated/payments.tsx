@@ -96,16 +96,18 @@ function PaymentsPage() {
                 </p>
               )}
               {p.note && <p className="text-sm">{p.note}</p>}
-              {ai[p.id] && (
+              {(() => {
+                const cur = ai[p.id];
+                if (!cur) return null;
+                return (
                 <div className="mt-2 space-y-0.5 rounded-lg border bg-muted/30 p-2.5 text-sm">
-                  {ai[p.id].loading ? (
+                  {cur.loading ? (
                     <p className="text-muted-foreground">AI กำลังอ่านสลิป...</p>
-                  ) : ai[p.id].error ? (
-                    <p className="text-destructive">{ai[p.id].error}</p>
+                  ) : cur.error ? (
+                    <p className="text-destructive">{cur.error}</p>
                   ) : (() => {
-                    const read = ai[p.id]!;
-                    const amt = read.amount ?? null;
-                    const aiDate = read.paid_on ?? null;
+                    const amt = cur.amount ?? null;
+                    const aiDate = cur.paid_on ?? null;
                     const amountOk = amt != null && p.bills != null && Math.abs(amt - Number(p.bills.total)) < 1;
                     const dateOk = aiDate != null && p.paid_on != null && aiDate === p.paid_on;
                     return (
