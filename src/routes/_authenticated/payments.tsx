@@ -130,7 +130,6 @@ function PaymentsPage() {
                 </div>
                 );
               })()}
-              )}
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={payStatus[p.status]?.v}>{payStatus[p.status]?.label}</Badge>
