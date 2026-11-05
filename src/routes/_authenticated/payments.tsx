@@ -96,20 +96,23 @@ function PaymentsPage() {
                 </p>
               )}
               {p.note && <p className="text-sm">{p.note}</p>}
-              {ai[p.id] && (
+              {(() => {
+                const cur = ai[p.id];
+                if (!cur) return null;
+                return (
                 <div className="mt-2 space-y-0.5 rounded-lg border bg-muted/30 p-2.5 text-sm">
-                  {ai[p.id].loading ? (
+                  {cur.loading ? (
                     <p className="text-muted-foreground">AI กำลังอ่านสลิป...</p>
-                  ) : ai[p.id].error ? (
-                    <p className="text-destructive">{ai[p.id].error}</p>
+                  ) : cur.error ? (
+                    <p className="text-destructive">{cur.error}</p>
                   ) : (() => {
-                    const amt = ai[p.id].amount ?? null;
-                    const aiDate = ai[p.id].paid_on ?? null;
+                    const amt = cur.amount ?? null;
+                    const aiDate = cur.paid_on ?? null;
                     const amountOk = amt != null && p.bills != null && Math.abs(amt - Number(p.bills.total)) < 1;
                     const dateOk = aiDate != null && p.paid_on != null && aiDate === p.paid_on;
                     return (
                       <>
-                        <p className="font-medium">ผลอ่านสลิปด้วย AI{ai[p.id].bank ? ` · ${ai[p.id].bank}` : ""}</p>
+                        <p className="font-medium">ผลอ่านสลิปด้วย AI{cur.bank ? ` · ${cur.bank}` : ""}</p>
                         <p className={amountOk ? "text-muted-foreground" : "font-medium text-destructive"}>
                           ยอดที่โอน {amt != null ? baht(amt) : "อ่านไม่ออก"}
                           {p.bills ? ` (ยอดบิล ${baht(p.bills.total)})` : ""}
@@ -125,7 +128,8 @@ function PaymentsPage() {
                     );
                   })()}
                 </div>
-              )}
+                );
+              })()}
             </div>
             <div className="flex items-center gap-2">
               <Badge variant={payStatus[p.status]?.v}>{payStatus[p.status]?.label}</Badge>

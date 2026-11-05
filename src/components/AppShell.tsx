@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const sidebar = (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="px-5 py-6">
-        <p className="text-xs uppercase tracking-widest text-sidebar-foreground/60">หอพัก</p>
+        <p className="text-xs uppercase tracking-widest text-sidebar-foreground/60">ระบบจัดการหอพัก</p>
         <h1 className="text-xl font-semibold">{DORM_NAME}</h1>
       </div>
       <nav className="flex-1 space-y-1 px-3">

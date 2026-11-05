@@ -46,8 +46,8 @@ export async function readSlipWithAI(imageDataUrl: string): Promise<
   const runIdFetch = createRunIdFetch();
   const provider = createOpenAI({
     baseURL: GATEWAY_URL,
-    apiKey: process.env.LOVABLE_API_KEY ?? "",
-    headers: { "Lovable-API-Key": process.env.LOVABLE_API_KEY ?? "", "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+    apiKey: process.env["LOVABLE_API_KEY"] ?? "",
+    headers: { "Lovable-API-Key": process.env["LOVABLE_API_KEY"] ?? "", "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
     fetch: runIdFetch.fetch,
   });
   const messages: ModelMessage[] = [
