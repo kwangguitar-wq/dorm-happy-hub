@@ -6,7 +6,7 @@ export type Room = Tables<"rooms">;
 export type Rental = Tables<"rentals">;
 export type Role = "owner" | "staff" | "tenant";
 
-export const DORM_NAME = "แม่ปะ 409";
+export const DORM_NAME = "หอพักแม่ปะ 409";
 
 export const baht = (n: number | string | null | undefined) =>
   new Intl.NumberFormat("th-TH", { style: "currency", currency: "THB", maximumFractionDigits: 0 }).format(
