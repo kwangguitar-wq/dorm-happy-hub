@@ -14,6 +14,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "เข้าสู่ระบบจัดการหอพัก" },
       { property: "og:title", content: `เข้าสู่ระบบ — ${DORM_NAME}` },
       { property: "og:description", content: "เข้าสู่ระบบจัดการหอพัก" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,

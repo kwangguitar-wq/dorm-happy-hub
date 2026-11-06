@@ -7,7 +7,14 @@ import { baht } from "@/lib/dorm";
 import { units } from "@/lib/billing";
 
 export const Route = createFileRoute("/_authenticated/reports")({
-  head: () => ({ meta: [{ title: "รายงาน — แม่ปะ 409" }] }),
+  head: () => ({ meta: [
+    { title: "รายงาน — หอพักแม่ปะ 409" },
+    { name: "description", content: "สรุปรายรับ ยอดค้าง และการใช้น้ำไฟของหอพักแม่ปะ 409" },
+    { property: "og:title", content: "รายงาน — หอพักแม่ปะ 409" },
+    { property: "og:description", content: "สรุปรายรับ ยอดค้าง และการใช้น้ำไฟ" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Reports,
 });
 

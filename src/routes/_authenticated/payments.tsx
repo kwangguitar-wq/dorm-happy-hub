@@ -12,7 +12,14 @@ import { units } from "@/lib/billing";
 import { readSlipWithAIFn } from "@/lib/slip-reader.functions";
 
 export const Route = createFileRoute("/_authenticated/payments")({
-  head: () => ({ meta: [{ title: "ตรวจสอบการชำระเงิน — แม่ปะ 409" }] }),
+  head: () => ({ meta: [
+    { title: "ตรวจสอบการชำระเงิน — หอพักแม่ปะ 409" },
+    { name: "description", content: "ตรวจสอบสลิปและยืนยันการชำระเงินของผู้เช่า" },
+    { property: "og:title", content: "ตรวจสอบการชำระเงิน — หอพักแม่ปะ 409" },
+    { property: "og:description", content: "ตรวจสอบสลิปและยืนยันการชำระเงินของหอพักแม่ปะ 409" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: PaymentsPage,
 });
 

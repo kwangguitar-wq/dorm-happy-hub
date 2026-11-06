@@ -6,7 +6,14 @@ import { baht, rentalsQuery, roomsQuery, roomStatusLabel, thDate } from "@/lib/d
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "แดชบอร์ด — แม่ปะ 409" }] }),
+  head: () => ({ meta: [
+    { title: "แดชบอร์ด — หอพักแม่ปะ 409" },
+    { name: "description", content: "ภาพรวมห้องพัก ผู้เช่า และรายรับของหอพักแม่ปะ 409" },
+    { property: "og:title", content: "แดชบอร์ด — หอพักแม่ปะ 409" },
+    { property: "og:description", content: "ภาพรวมห้องพัก ผู้เช่า และรายรับของหอพักแม่ปะ 409" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Dashboard,
 });
 

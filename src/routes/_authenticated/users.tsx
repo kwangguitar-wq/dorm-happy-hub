@@ -6,7 +6,14 @@ import { PageHeader } from "@/components/AppShell";
 import { meQuery, pickRole, rentalsQuery, roleLabel, type Role } from "@/lib/dorm";
 
 export const Route = createFileRoute("/_authenticated/users")({
-  head: () => ({ meta: [{ title: "จัดการผู้ใช้ — แม่ปะ 409" }] }),
+  head: () => ({ meta: [
+    { title: "จัดการผู้ใช้ — หอพักแม่ปะ 409" },
+    { name: "description", content: "จัดการบัญชีและการผูกผู้เช่ากับห้องพัก หอพักแม่ปะ 409" },
+    { property: "og:title", content: "จัดการผู้ใช้ — หอพักแม่ปะ 409" },
+    { property: "og:description", content: "จัดการบัญชีและการผูกผู้เช่ากับห้องพัก" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Users,
 });
 
