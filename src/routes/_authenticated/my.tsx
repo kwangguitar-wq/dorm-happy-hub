@@ -15,7 +15,14 @@ import { payStatus } from "./payments";
 import { RepairsPanel } from "@/components/RepairsPanel";
 
 export const Route = createFileRoute("/_authenticated/my")({
-  head: () => ({ meta: [{ title: "ห้องของฉัน — แม่ปะ 409" }] }),
+  head: () => ({ meta: [
+    { title: "ห้องของฉัน — หอพักแม่ปะ 409" },
+    { name: "description", content: "ดูข้อมูลห้อง บิล และแจ้งชำระเงินของผู้เช่า หอพักแม่ปะ 409" },
+    { property: "og:title", content: "ห้องของฉัน — หอพักแม่ปะ 409" },
+    { property: "og:description", content: "ดูข้อมูลห้อง บิล และแจ้งชำระเงินของผู้เช่า" },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: MyRoom,
 });
 

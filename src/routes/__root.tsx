@@ -70,8 +70,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "แม่ปะ 409 — ระบบจัดการหอพัก" },
-      { name: "description", content: "ระบบจัดการห้องพักบาบรีสแม่ปะ" },
+      { title: "หอพักแม่ปะ 409 — ระบบจัดการหอพัก" },
+      { name: "description", content: "ระบบจัดการห้องพัก ผู้เช่า บิล และการชำระเงินของหอพักแม่ปะ 409" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
