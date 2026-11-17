@@ -56,3 +56,23 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+
+## Vercel deployment and environment setup
+
+This application uses TanStack Start, Vite, and Supabase. Import this repository into Vercel and configure the production branch as `main`. Use the repository's detected framework/build settings; verify the build output before assigning a production domain.
+
+Copy the variable names from `.env.example` into Vercel Project Settings → Environment Variables. Set Supabase URL and publishable key for the browser and server as appropriate. Keep `SUPABASE_SERVICE_ROLE_KEY` server-only; never prefix it with `VITE_` and never expose it to browser code.
+
+## LINE Messaging API setup
+
+Create or use a LINE Official Account and enable the Messaging API in LINE Developers. Configure these values in Vercel Environment Variables (Production and Preview as needed):
+
+- `LINE_CHANNEL_ACCESS_TOKEN`: channel access token (server-side only)
+- `LINE_CHANNEL_SECRET`: channel secret used to verify webhook signatures
+- `LINE_ADMIN_USER_ID`: LINE user ID for the dorm manager
+- `LINE_DORM_GROUP_ID`: LINE group ID for the dorm management group
+
+Add the deployed webhook URL in LINE Developers after the webhook endpoint has been implemented and deployed. Invite the LINE Official Account into the dorm group. Tenants must add the Official Account as a friend and explicitly link their LINE account to their tenant profile before receiving private tenant notifications.
+
+**Security note:** Environment files must not be committed. If a real `.env` file was previously committed, deleting it from the latest commit does not erase it from Git history. Rotate every credential that was present in that file, especially Supabase service-role keys and any LINE tokens, before production use.
