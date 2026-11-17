@@ -7,11 +7,19 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
 }
 
+function getServerEnv(): Record<string, string | undefined> {
+  return typeof process !== 'undefined' ? process.env : {};
+}
+
 // The public URL can be reachable only from the browser, so server requests go to the runtime URL of the same backend.
 function serverSupabaseUrl(publicUrl: string, supabaseKey: string): string | undefined {
-  if (typeof window !== 'undefined' || typeof process === 'undefined') return undefined;
-  const serverUrl = process.env['SUPABASE_URL']?.replace(/\/+$/, '');
-  if (!serverUrl || serverUrl === publicUrl || process.env['SUPABASE_PUBLISHABLE_KEY'] !== supabaseKey) return undefined;
+  if (typeof window !== 'undefined') return undefined;
+  const env = getServerEnv();
+  const serverUrl = env['SUPABASE_URL']?.replace(/\/+$/, '');
+  const serverKey =
+    env['SUPABASE_PUBLISHABLE_KEY'] ||
+    env['SUPABASE_ANON_KEY'];
+  if (!serverUrl || serverUrl === publicUrl || serverKey !== supabaseKey) return undefined;
   return serverUrl;
 }
 
@@ -45,19 +53,28 @@ function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof f
   };
 }
 
-
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'];
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'];
+  // Vite config maps the existing Vercel/Lovable public variable names to VITE_* at build time.
+  // Server-side runtime fallback supports deployments that provide SUPABASE_* variables only.
+  const env = getServerEnv();
+  const SUPABASE_URL =
+    import.meta.env['VITE_SUPABASE_URL'] ||
+    env['SUPABASE_URL'] ||
+    env['NEXT_PUBLIC_SUPABASE_URL'];
+
+  const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
+    env['SUPABASE_PUBLISHABLE_KEY'] ||
+    env['SUPABASE_ANON_KEY'] ||
+    env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] ||
+    env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
-      ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
+      ...(!SUPABASE_URL ? ['Supabase project URL (VITE_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_URL / SUPABASE_URL)'] : []),
+      ...(!SUPABASE_PUBLISHABLE_KEY ? ['Supabase public key (VITE_SUPABASE_PUBLISHABLE_KEY / SUPABASE_ANON_KEY)'] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
+    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Configure the public Supabase URL and anon/publishable key in Vercel.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
@@ -84,4 +101,3 @@ export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>,
     return Reflect.get(_supabase, prop, receiver);
   },
 });
-
