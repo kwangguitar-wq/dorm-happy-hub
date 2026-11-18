@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { baht, thDate } from "@/lib/dorm";
 import { units } from "@/lib/billing";
-import { readSlipWithAIFn } from "@/lib/slip-reader.functions";
+import { readSlipWithAIFn } from "@/lib/slip-reader.functions";\nimport { notifyLine } from "@/lib/line-notifications";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   head: () => ({ meta: [
@@ -77,7 +77,7 @@ function PaymentsPage() {
       const { error: e2 } = await supabase.rpc("mark_bill_paid", { _bill_id: p.bills.id });
       if (e2) { toast.error(e2.message); return; }
     }
-    toast.success(ok ? "ยืนยันการชำระแล้ว" : "ปฏิเสธรายการแล้ว");
+    const notice = await notifyLine("payment_reviewed", ok ? "ยืนยันการชำระเงินแล้ว" : "ไม่อนุมัติการชำระเงิน", `ห้อง ${p.bills?.rooms?.room_number ?? "ไม่ระบุ"} · ยอด ${baht(p.amount)}${ok ? "" : " · กรุณาติดต่อผู้ดูแลหากต้องการทราบเหตุผล"}`, p.tenant_user_id);\n    toast.success(ok ? "ยืนยันการชำระแล้ว" : "ปฏิเสธรายการแล้ว");\n    if (!notice.ok) toast.warning(`บันทึกผลแล้ว แต่ส่ง LINE ไม่สำเร็จ: ${notice.message}`);
     qc.invalidateQueries({ queryKey: ["payments"] });
     qc.invalidateQueries({ queryKey: ["bills"] });
   }
