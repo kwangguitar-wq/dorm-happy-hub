@@ -18,7 +18,7 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
-  const [tab, setTab] = useState<"active" | "ended">("active");
+  const [tab, setTab] = useState<"active" | "completed">("active");
   const [roomId, setRoomId] = useState("");
   const isDaily = type === "daily";
   const vacant = rooms.filter((r) => r.status === "vacant");
@@ -99,7 +99,7 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
           <Input className="pl-9" placeholder="ค้นหาชื่อ เบอร์ หรือเลขห้อง" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex rounded-lg border p-1">
-          {(["active", "ended"] as const).map((t) => (
+          {(["active", "completed"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
