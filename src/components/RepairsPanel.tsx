@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { thDate } from "@/lib/dorm";
 import { Field } from "@/routes/_authenticated/rooms";
+import { notifyLine } from "@/lib/line-notifications";
 
 export const repairStatus: Record<string, { label: string; v: "default" | "secondary" | "outline" }> = {
   pending: { label: "รอดำเนินการ", v: "secondary" },
@@ -36,7 +37,9 @@ export function RepairsPanel({ staff, roomId }: { staff: boolean; roomId?: strin
       room_id: roomId ?? null, tenant_user_id: u.user!.id,
     });
     if (error) { toast.error(error.message); return; }
+    const notice = await notifyLine("repair_created", "มีรายการแจ้งซ่อมใหม่", `${String(f.get("title"))}${f.get("detail") ? ` · ${String(f.get("detail"))}` : ""}`);
     toast.success("ส่งแจ้งซ่อมแล้ว");
+    if (!notice.ok) toast.warning(`บันทึกแจ้งซ่อมแล้ว แต่ส่ง LINE ไม่สำเร็จ: ${notice.message}`);
     setOpen(false);
     qc.invalidateQueries({ queryKey: ["repairs"] });
   }
