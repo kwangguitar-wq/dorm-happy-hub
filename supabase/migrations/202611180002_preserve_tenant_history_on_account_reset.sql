@@ -34,6 +34,7 @@ insert into public.tenant_customers (normalized_email, full_name, phone, auth_us
 select lower(trim(p.email)), coalesce(p.full_name, ''), p.phone, p.id
 from public.profiles p
 where p.email is not null and trim(p.email) <> ''
+  and exists (select 1 from public.user_roles ur where ur.user_id = p.id and ur.role = 'tenant'::public.app_role)
 on conflict (normalized_email) do update
 set full_name = case when public.tenant_customers.full_name = '' then excluded.full_name else public.tenant_customers.full_name end,
     phone = coalesce(public.tenant_customers.phone, excluded.phone),
