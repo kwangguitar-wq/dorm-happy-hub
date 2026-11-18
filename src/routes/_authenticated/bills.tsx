@@ -38,7 +38,7 @@ function BillsPage() {
   const { data: bills = [] } = useQuery({
     queryKey: ["bills"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("bills").select("*, rooms(room_number)").order("bill_month", { ascending: false });
+      const { data, error } = await supabase.from("bills").select("*, rooms(room_number), rentals(tenant_name, phone, email)").order("bill_month", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -64,11 +64,18 @@ function BillsPage() {
     const { data: rental } = await supabase
       .from("rentals").select("id, tenant_user_id, rate").eq("room_id", roomId).eq("status", "active")
       .eq("rental_type", "monthly").maybeSingle();
+    const billMonth = `${f.get("month")}-01`;
+    const due = new Date(`${billMonth}T12:00:00`);
+    due.setDate(Number(settings?.due_day ?? 5));
+    const dueDate = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, "0")}-${String(due.getDate()).padStart(2, "0")}`;
+    const billNo = `INV-${String(f.get("month")).replace("-", "")}-${String(room?.room_number ?? roomId.slice(0, 6)).replace(/[^a-zA-Z0-9ก-๙-]/g, "")}`;
     const row = {
       room_id: roomId,
+      bill_no: billNo,
+      due_date: dueDate,
       rental_id: rental?.id ?? null,
       tenant_user_id: rental?.tenant_user_id ?? null,
-      bill_month: `${f.get("month")}-01`,
+      bill_month: billMonth,
       water_prev: Number(f.get("water_prev")),
       water_curr: Number(f.get("water_curr")),
       electric_prev: Number(f.get("electric_prev")),
@@ -93,6 +100,12 @@ function BillsPage() {
     const f = new FormData(e.currentTarget);
     const { error } = await supabase.from("settings").upsert({
       id: 1, water_rate: Number(f.get("water_rate")), electric_rate: Number(f.get("electric_rate")),
+      dorm_name: String(f.get("dorm_name") || ""), dorm_address: String(f.get("dorm_address") || ""),
+      dorm_phone: String(f.get("dorm_phone") || ""), dorm_email: String(f.get("dorm_email") || ""),
+      due_day: Number(f.get("due_day") || 5), late_fee_note: String(f.get("late_fee_note") || ""),
+      bank_name: String(f.get("bank_name") || ""), bank_account_name: String(f.get("bank_account_name") || ""),
+      bank_account_number: String(f.get("bank_account_number") || ""), promptpay_id: String(f.get("promptpay_id") || ""),
+      payment_note: String(f.get("payment_note") || ""), payment_qr_url: String(f.get("payment_qr_url") || ""),
     });
     if (error) { toast.error(error.message); return; }
     toast.success("บันทึกอัตราแล้ว");
@@ -211,7 +224,7 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
                     )}
                     {b.status !== "paid" && (
                       <>
-                        <Button variant="ghost" size="sm" onClick={() => printInvoice(b)} title="พิมพ์ใบแจ้งหนี้">
+                        <Button variant="ghost" size="sm" onClick={() => printInvoice(b, settings ?? undefined)} title="พิมพ์ใบแจ้งหนี้">
                           <Printer /> ใบแจ้งหนี้
                         </Button>
                         <Button
@@ -264,6 +277,20 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
           <form onSubmit={saveRates} className="grid grid-cols-2 gap-3">
             <Field label="ค่าน้ำ (บาท/หน่วย)" name="water_rate" type="number" step="any" defaultValue={settings?.water_rate ?? 0} />
             <Field label="ค่าไฟ (บาท/หน่วย)" name="electric_rate" type="number" step="any" defaultValue={settings?.electric_rate ?? 0} />
+            <div className="col-span-2 border-t pt-3 font-medium">ข้อมูลหอพักบนใบแจ้งหนี้</div>
+            <Field label="ชื่อหอพัก" name="dorm_name" defaultValue={settings?.dorm_name ?? DORM_NAME} />
+            <Field label="เบอร์ติดต่อ" name="dorm_phone" defaultValue={settings?.dorm_phone ?? ""} />
+            <div className="col-span-2"><Field label="ที่อยู่หอพัก" name="dorm_address" defaultValue={settings?.dorm_address ?? ""} /></div>
+            <div className="col-span-2"><Field label="อีเมล" name="dorm_email" type="email" defaultValue={settings?.dorm_email ?? ""} /></div>
+            <Field label="กำหนดชำระวันที่ (1–28)" name="due_day" type="number" min={1} max={28} defaultValue={settings?.due_day ?? 5} />
+            <div className="col-span-2"><Field label="เงื่อนไขค่าปรับ/ชำระล่าช้า" name="late_fee_note" defaultValue={settings?.late_fee_note ?? ""} /></div>
+            <div className="col-span-2 border-t pt-3 font-medium">ช่องทางรับชำระเงิน</div>
+            <Field label="ธนาคาร" name="bank_name" defaultValue={settings?.bank_name ?? ""} />
+            <Field label="ชื่อบัญชี" name="bank_account_name" defaultValue={settings?.bank_account_name ?? ""} />
+            <Field label="เลขที่บัญชี" name="bank_account_number" defaultValue={settings?.bank_account_number ?? ""} />
+            <Field label="PromptPay ID" name="promptpay_id" defaultValue={settings?.promptpay_id ?? ""} />
+            <div className="col-span-2"><Field label="ลิงก์รูป QR Code" name="payment_qr_url" defaultValue={settings?.payment_qr_url ?? ""} /></div>
+            <div className="col-span-2"><Field label="หมายเหตุการชำระเงิน" name="payment_note" defaultValue={settings?.payment_note ?? ""} /></div>
             <Button type="submit" className="col-span-2">บันทึก</Button>
           </form>
         </DialogContent>
