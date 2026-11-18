@@ -39,6 +39,13 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const room_id = String(f.get("room_id"));
+    if (!room_id) { toast.error("กรุณาเลือกห้องพัก"); return; }
+    const { data: currentRoom, error: roomError } = await supabase.from("rooms").select("status").eq("id", room_id).maybeSingle();
+    if (roomError || !currentRoom) { toast.error("ตรวจสอบห้องพักไม่สำเร็จ"); return; }
+    if (currentRoom.status !== "vacant") { toast.error("ห้องนี้ไม่ว่างแล้ว กรุณาเลือกห้องอื่น"); refresh(); return; }
+    const { data: activeInRoom, error: activeError } = await supabase.from("rentals").select("id").eq("room_id", room_id).eq("status", "active").limit(1);
+    if (activeError) { toast.error("ตรวจสอบผู้เช่าปัจจุบันไม่สำเร็จ"); return; }
+    if (activeInRoom?.length) { toast.error("ห้องนี้มีผู้เช่าอยู่แล้ว กรุณาตรวจสอบข้อมูลห้องพัก"); refresh(); return; }
     const { error } = await supabase.from("rentals").insert({
       room_id,
       rental_type: type,
@@ -63,10 +70,13 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
   async function checkout(id: string, room_id: string) {
     if (!confirm("ยืนยันการย้ายออก/เช็คเอาท์?")) return;
     const today = new Date().toISOString().slice(0, 10);
-    const { error } = await supabase.from("rentals").update({ status: "ended", check_out: today }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
-    await supabase.from("rooms").update({ status: "vacant" }).eq("id", room_id);
-    toast.success("บันทึกการออกแล้ว");
+    const { error } = await supabase.from("rentals").update({ status: "completed", check_out: today }).eq("id", id).eq("status", "active");
+    if (error) { toast.error(`ย้ายออกไม่สำเร็จ: ${error.message}`); return; }
+    const { data: otherActive, error: checkError } = await supabase.from("rentals").select("id").eq("room_id", room_id).eq("status", "active").limit(1);
+    if (checkError) { toast.error(`บันทึกการย้ายออกแล้ว แต่ตรวจสอบสถานะห้องไม่สำเร็จ: ${checkError.message}`); refresh(); return; }
+    const { error: roomUpdateError } = await supabase.from("rooms").update({ status: otherActive?.length ? "occupied" : "vacant" }).eq("id", room_id);
+    if (roomUpdateError) { toast.error(`บันทึกการย้ายออกแล้ว แต่ปรับสถานะห้องไม่สำเร็จ: ${roomUpdateError.message}`); refresh(); return; }
+    toast.success("บันทึกการย้ายออกแล้ว");
     refresh();
   }
 
