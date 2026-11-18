@@ -53,7 +53,7 @@ export const Route = createFileRoute("/api/admin/delete-tenant")({
         const { data: targetRoles, error: targetRoleError } = await admin
           .from("user_roles").select("role").eq("user_id", body.userId);
         if (targetRoleError) return json("อ่านบทบาทบัญชีเป้าหมายไม่สำเร็จ", 500);
-        if ((targetRoles ?? []).some((r) => r.role !== "tenant")) {
+        if (!(targetRoles ?? []).length || (targetRoles ?? []).some((r) => r.role !== "tenant")) {
           return json("เพื่อความปลอดภัย ฟังก์ชันนี้ลบได้เฉพาะบัญชีผู้เช่าเท่านั้น", 403);
         }
 
