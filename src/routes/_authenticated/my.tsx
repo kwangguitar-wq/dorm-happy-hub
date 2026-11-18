@@ -13,6 +13,7 @@ import { printInvoice } from "@/lib/invoice";
 import { Field } from "./rooms";
 import { payStatus } from "./payments";
 import { RepairsPanel } from "@/components/RepairsPanel";
+import { notifyLine } from "@/lib/line-notifications";
 
 export const Route = createFileRoute("/_authenticated/my")({
   head: () => ({ meta: [
@@ -63,7 +64,9 @@ function MyRoom() {
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+    const notice = await notifyLine("payment_submitted", "มีผู้เช่าแจ้งชำระเงิน", `ห้อง ${bill.rooms?.room_number ?? "ไม่ระบุ"} · ยอด ${baht(Number(f.get("amount")))} · วันที่โอน ${String(f.get("paid_on"))}`);
     toast.success("ส่งแจ้งชำระแล้ว รอเจ้าหน้าที่ตรวจสอบ");
+    if (!notice.ok) toast.warning(`บันทึกแจ้งชำระแล้ว แต่ส่ง LINE ไม่สำเร็จ: ${notice.message}`);
     setBill(null);
     qc.invalidateQueries({ queryKey: ["my-bills"] });
   }
