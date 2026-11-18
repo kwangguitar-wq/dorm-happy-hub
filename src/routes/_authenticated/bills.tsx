@@ -108,7 +108,7 @@ function BillsPage() {
       payment_note: String(f.get("payment_note") || ""), payment_qr_url: String(f.get("payment_qr_url") || ""),
     });
     if (error) { toast.error(error.message); return; }
-    toast.success("บันทึกอัตราแล้ว");
+    toast.success("บันทึกการตั้งค่าใบแจ้งหนี้แล้ว");
     setRateOpen(false);
     qc.invalidateQueries({ queryKey: ["settings"] });
   }
@@ -273,7 +273,7 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
 
       <Dialog open={rateOpen} onOpenChange={setRateOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>อัตราค่าน้ำ/ค่าไฟต่อหน่วย</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>ตั้งค่าบิลและช่องทางชำระเงิน</DialogTitle></DialogHeader>
           <form onSubmit={saveRates} className="grid grid-cols-2 gap-3">
             <Field label="ค่าน้ำ (บาท/หน่วย)" name="water_rate" type="number" step="any" defaultValue={settings?.water_rate ?? 0} />
             <Field label="ค่าไฟ (บาท/หน่วย)" name="electric_rate" type="number" step="any" defaultValue={settings?.electric_rate ?? 0} />
