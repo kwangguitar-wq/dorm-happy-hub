@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Printer, ReceiptText, Settings2 } from "lucide-react";
+import { Plus, Printer, ReceiptText, Settings2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
@@ -98,6 +98,38 @@ function BillsPage() {
     toast.success("บันทึกอัตราแล้ว");
     setRateOpen(false);
     qc.invalidateQueries({ queryKey: ["settings"] });
+  }
+
+  async function deleteBill(b: (typeof bills)[number]) {
+    if (b.status === "paid") {
+      toast.error("ไม่สามารถลบบิลที่ชำระเงินแล้วได้");
+      return;
+    }
+    const confirmed = window.confirm(
+      `ยืนยันลบบิลห้อง ${b.rooms?.room_number ?? ""} ประจำเดือน ${new Date(b.bill_month).toLocaleDateString("th-TH", { month: "long", year: "numeric" })} ใช่หรือไม่? การลบนี้ไม่สามารถย้อนกลับได้`
+    );
+    if (!confirmed) return;
+
+    const { count, error: paymentCheckError } = await supabase
+      .from("payments")
+      .select("id", { count: "exact", head: true })
+      .eq("bill_id", b.id);
+    if (paymentCheckError) {
+      toast.error(`ตรวจสอบรายการชำระเงินไม่สำเร็จ: ${paymentCheckError.message}`);
+      return;
+    }
+    if ((count ?? 0) > 0) {
+      toast.error("ลบบิลนี้ไม่ได้ เพราะมีรายการชำระเงินผูกอยู่");
+      return;
+    }
+
+    const { error } = await supabase.from("bills").delete().eq("id", b.id);
+    if (error) {
+      toast.error(`ลบบิลไม่สำเร็จ: ${error.message}`);
+      return;
+    }
+    toast.success("ลบบิลเรียบร้อยแล้ว");
+    qc.invalidateQueries({ queryKey: ["bills"] });
   }
 
   async function togglePaid(b: (typeof bills)[number]) {
