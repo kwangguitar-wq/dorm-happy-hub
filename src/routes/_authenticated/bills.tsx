@@ -235,21 +235,19 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
                         <ReceiptText /> {b.receipt_no}
                       </Button>
                     )}
+                    <Button variant="ghost" size="sm" onClick={() => printInvoice(b, settings ?? undefined)} title="พิมพ์ใบแจ้งหนี้ใหม่ด้วยข้อมูลช่องทางชำระเงินปัจจุบัน">
+                      <Printer /> ใบแจ้งหนี้
+                    </Button>
                     {b.status !== "paid" && (
-                      <>
-                        <Button variant="ghost" size="sm" onClick={() => printInvoice(b, settings ?? undefined)} title="พิมพ์ใบแจ้งหนี้">
-                          <Printer /> ใบแจ้งหนี้
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteBill(b)}
-                          title="ลบบิลที่ยังไม่ชำระ"
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" /> ลบ
-                        </Button>
-                      </>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteBill(b)}
+                        title="ลบบิลที่ยังไม่ชำระ"
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" /> ลบ
+                      </Button>
                     )}
                   </div>
                 </td>
