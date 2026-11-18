@@ -329,12 +329,36 @@ export type Database = {
           id: number
           updated_at: string
           water_rate: number
+          dorm_name: string | null
+          dorm_address: string | null
+          dorm_phone: string | null
+          dorm_email: string | null
+          due_day: number
+          late_fee_note: string | null
+          bank_name: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          promptpay_id: string | null
+          payment_note: string | null
+          payment_qr_url: string | null
         }
         Insert: {
           electric_rate?: number
           id?: number
           updated_at?: string
           water_rate?: number
+          dorm_name?: string | null
+          dorm_address?: string | null
+          dorm_phone?: string | null
+          dorm_email?: string | null
+          due_day?: number
+          late_fee_note?: string | null
+          bank_name?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          promptpay_id?: string | null
+          payment_note?: string | null
+          payment_qr_url?: string | null
         }
         Update: {
           electric_rate?: number
