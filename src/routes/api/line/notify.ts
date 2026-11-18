@@ -57,9 +57,27 @@ export const Route = createFileRoute("/api/line/notify")({
         const isStaff = roles.includes("owner") || roles.includes("staff");
         if (body.type === "bill_created" && !isStaff) return response("ไม่มีสิทธิ์แจ้งเตือนการสร้างบิล", 403);
 
+        const { data: profile } = await adminClient
+          .from("profiles")
+          .select("full_name")
+          .eq("id", authData.user.id)
+          .maybeSingle();
+        const actorName = profile?.full_name?.trim() || authData.user.email || "ผู้ใช้ระบบ";
+
+        const destinationByType: Record<NoticeType, string> = {
+          bill_created: "/bills",
+          payment_submitted: "/payments",
+          repair_created: "/repairs",
+        };
+        const destinationUrl = new URL(destinationByType[body.type], request.url).toString();
         const title = String(body.title ?? "").slice(0, 120);
-        const detail = String(body.detail ?? "").slice(0, 700);
-        const text = [title || "แจ้งเตือนหอพักแม่ปะ 409", detail, `ผู้ดำเนินการ: ${authData.user.email ?? "ผู้ใช้ระบบ"}`]
+        const detail = String(body.detail ?? "").slice(0, 650);
+        const text = [
+          title || "แจ้งเตือนหอพักแม่ปะ 409",
+          detail,
+          `ผู้แจ้ง: ${actorName}`,
+          `เปิดดูรายการ: ${destinationUrl}`,
+        ]
           .filter(Boolean)
           .join("\n");
 
