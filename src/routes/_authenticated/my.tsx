@@ -32,11 +32,20 @@ function MyRoom() {
   const { data: me } = useQuery(meQuery);
   const { data: rentals = [] } = useQuery(rentalsQuery());
   const mine = rentals.filter((r) => r.status === "active");
+  const { data: invoiceSettings } = useQuery({
+    queryKey: ["settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("settings").select("*").eq("id", 1).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
   const { data: bills = [] } = useQuery({
     queryKey: ["my-bills"],
     queryFn: async () => {
       const { data, error } = await supabase.from("bills")
-        .select("*, rooms(room_number), payments(id, status, created_at)").order("bill_month", { ascending: false });
+        .select("*, rooms(room_number), rentals(tenant_name, phone, email), payments(id, status, created_at)")
+        .order("bill_month", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -146,7 +155,7 @@ function MyRoom() {
                   : last ? <Badge variant={payStatus[last.status]?.v}>{payStatus[last.status]?.label}</Badge>
                   : <Badge variant="secondary">ค้างชำระ</Badge>}
                 {b.status !== "paid" && (
-                  <Button size="sm" variant="outline" onClick={() => printInvoice(b)}>ใบแจ้งหนี้</Button>
+                  <Button size="sm" variant="outline" onClick={() => printInvoice(b, invoiceSettings ?? undefined)}>ใบแจ้งหนี้</Button>
                 )}
                 {canPay && <Button size="sm" onClick={() => setBill(b)}>แจ้งชำระ</Button>}
               </div>
