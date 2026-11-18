@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/line/notify")({
         const destinationUrl = new URL(destinationByType[body.type], request.url).toString();
         const title = String(body.title ?? "").slice(0, 120);
         const detail = String(body.detail ?? "").slice(0, 650);
-        const text = [title || "แจ้งเตือนหอพักแม่ปะ 409", detail, `ผู้แจ้ง: ${actorName}`, `เปิดดูรายการ: ${destinationUrl}`].filter(Boolean).join("\\n");
+        const text = [title || "แจ้งเตือนหอพักแม่ปะ 409", detail, `ผู้แจ้ง: ${actorName}`, `เปิดดูรายการ: ${destinationUrl}`].filter(Boolean).join("\n");
 
         const adminPush = await fetch("https://api.line.me/v2/bot/message/push", {
           method: "POST",
@@ -69,7 +69,7 @@ export const Route = createFileRoute("/api/line/notify")({
           }
           if (link?.line_user_id) {
             const tenantUrl = new URL("/my", request.url).toString();
-            const tenantText = [title || "แจ้งเตือนจากหอพักแม่ปะ 409", detail, `เปิดดูข้อมูลของฉัน: ${tenantUrl}`].filter(Boolean).join("\\n");
+            const tenantText = [title || "แจ้งเตือนจากหอพักแม่ปะ 409", detail, `เปิดดูข้อมูลของฉัน: ${tenantUrl}`].filter(Boolean).join("\n");
             const tenantPush = await fetch("https://api.line.me/v2/bot/message/push", {
               method: "POST",
               headers: { Authorization: `Bearer ${lineToken}`, "Content-Type": "application/json" },
