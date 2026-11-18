@@ -46,6 +46,7 @@ function BillsPage() {
   const [open, setOpen] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
   const [roomId, setRoomId] = useState("");
+  const [qrFile, setQrFile] = useState<File | null>(null);
 
   const lastBill = bills.find((b) => b.room_id === roomId);
   const room = rooms.find((r) => r.id === roomId);
@@ -98,6 +99,18 @@ function BillsPage() {
   async function saveRates(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    let paymentQrUrl = settings?.payment_qr_url ?? "";
+    if (qrFile) {
+      if (!qrFile.type.startsWith("image/")) { toast.error("กรุณาเลือกไฟล์รูปภาพเท่านั้น"); return; }
+      if (qrFile.size > 5 * 1024 * 1024) { toast.error("ไฟล์ QR Code ต้องมีขนาดไม่เกิน 5 MB"); return; }
+      const extension = qrFile.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+      const filePath = `payment-qr/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await supabase.storage.from("dorm-assets").upload(filePath, qrFile, {
+        contentType: qrFile.type, cacheControl: "3600", upsert: false,
+      });
+      if (uploadError) { toast.error(`อัปโหลด QR Code ไม่สำเร็จ: ${uploadError.message}`); return; }
+      paymentQrUrl = supabase.storage.from("dorm-assets").getPublicUrl(filePath).data.publicUrl;
+    }
     const { error } = await supabase.from("settings").upsert({
       id: 1, water_rate: Number(f.get("water_rate")), electric_rate: Number(f.get("electric_rate")),
       dorm_name: String(f.get("dorm_name") || ""), dorm_address: String(f.get("dorm_address") || ""),
@@ -105,7 +118,7 @@ function BillsPage() {
       due_day: Number(f.get("due_day") || 5), late_fee_note: String(f.get("late_fee_note") || ""),
       bank_name: String(f.get("bank_name") || ""), bank_account_name: String(f.get("bank_account_name") || ""),
       bank_account_number: String(f.get("bank_account_number") || ""), promptpay_id: String(f.get("promptpay_id") || ""),
-      payment_note: String(f.get("payment_note") || ""), payment_qr_url: String(f.get("payment_qr_url") || ""),
+      payment_note: String(f.get("payment_note") || ""), payment_qr_url: paymentQrUrl,
     });
     if (error) { toast.error(error.message); return; }
     toast.success("บันทึกการตั้งค่าใบแจ้งหนี้แล้ว");
@@ -289,7 +302,17 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
             <Field label="ชื่อบัญชี" name="bank_account_name" defaultValue={settings?.bank_account_name ?? ""} />
             <Field label="เลขที่บัญชี" name="bank_account_number" defaultValue={settings?.bank_account_number ?? ""} />
             <Field label="PromptPay ID" name="promptpay_id" defaultValue={settings?.promptpay_id ?? ""} />
-            <div className="col-span-2"><Field label="ลิงก์รูป QR Code" name="payment_qr_url" defaultValue={settings?.payment_qr_url ?? ""} /></div>
+            <div className="col-span-2 space-y-2">
+              <label className="text-sm font-medium" htmlFor="payment_qr_file">รูป QR Code สำหรับชำระเงิน</label>
+              <input id="payment_qr_file" type="file" accept="image/png,image/jpeg,image/webp"
+                onChange={(event) => setQrFile(event.target.files?.[0] ?? null)}
+                className="block w-full rounded-md border bg-background px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5" />
+              <p className="text-xs text-muted-foreground">รองรับ PNG, JPG และ WEBP ขนาดไม่เกิน 5 MB</p>
+              {qrFile ? <div className="space-y-1"><p className="text-xs text-muted-foreground">ไฟล์ใหม่: {qrFile.name}</p>
+                <img src={URL.createObjectURL(qrFile)} alt="ตัวอย่าง QR Code ที่เลือก" className="h-36 w-36 rounded-md border bg-white object-contain p-2" /></div>
+                : settings?.payment_qr_url ? <div className="space-y-1"><p className="text-xs text-muted-foreground">รูป QR Code ที่บันทึกไว้</p>
+                  <img src={settings.payment_qr_url} alt="QR Code ปัจจุบัน" className="h-36 w-36 rounded-md border bg-white object-contain p-2" /></div> : null}
+            </div>
             <div className="col-span-2"><Field label="หมายเหตุการชำระเงิน" name="payment_note" defaultValue={settings?.payment_note ?? ""} /></div>
             <Button type="submit" className="col-span-2">บันทึก</Button>
           </form>
