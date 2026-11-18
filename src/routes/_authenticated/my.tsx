@@ -42,7 +42,25 @@ function MyRoom() {
     },
   });
   const [bill, setBill] = useState<(typeof bills)[number] | null>(null);
-  const [busy, setBusy] = useState(false);\n  const [lineCode, setLineCode] = useState<string | null>(null);\n  const [lineBusy, setLineBusy] = useState(false);\n\n  async function createLineLinkCode() {\n    setLineBusy(true);\n    try {\n      const { data } = await supabase.auth.getSession();\n      const token = data.session?.access_token;\n      if (!token) { toast.error("กรุณาเข้าสู่ระบบใหม่"); return; }\n      const res = await fetch("/api/line/link-code", { method: "POST", headers: { Authorization: `Bearer ${token}` } });\n      const result = await res.json() as { message?: string; code?: string; linked?: boolean };\n      if (!res.ok) { toast.error(result.message ?? "สร้างรหัสไม่สำเร็จ"); return; }\n      if (result.linked) { toast.success("บัญชีนี้เชื่อมต่อ LINE อยู่แล้ว"); setLineCode(null); return; }\n      setLineCode(result.code ?? null);\n      toast.success("สร้างรหัสเชื่อมต่อแล้ว มีอายุ 10 นาที");\n    } catch { toast.error("เชื่อมต่อระบบไม่สำเร็จ"); }\n    finally { setLineBusy(false); }\n  }
+  const [busy, setBusy] = useState(false);
+  const [lineCode, setLineCode] = useState<string | null>(null);
+  const [lineBusy, setLineBusy] = useState(false);
+
+  async function createLineLinkCode() {
+    setLineBusy(true);
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) { toast.error("กรุณาเข้าสู่ระบบใหม่"); return; }
+      const res = await fetch("/api/line/link-code", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      const result = await res.json() as { message?: string; code?: string; linked?: boolean };
+      if (!res.ok) { toast.error(result.message ?? "สร้างรหัสไม่สำเร็จ"); return; }
+      if (result.linked) { toast.success("บัญชีนี้เชื่อมต่อ LINE อยู่แล้ว"); setLineCode(null); return; }
+      setLineCode(result.code ?? null);
+      toast.success("สร้างรหัสเชื่อมต่อแล้ว มีอายุ 10 นาที");
+    } catch { toast.error("เชื่อมต่อระบบไม่สำเร็จ"); }
+    finally { setLineBusy(false); }
+  }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -73,7 +91,19 @@ function MyRoom() {
 
   return (
     <>
-      <PageHeader title={`สวัสดี ${me?.name ?? ""}`} sub="ข้อมูลการเช่าของคุณ" />\n      <section className="mt-4 rounded-xl border bg-card p-4">\n        <div className="flex flex-wrap items-center justify-between gap-3">\n          <div><h3 className="font-semibold">การแจ้งเตือนผ่าน LINE</h3><p className="text-sm text-muted-foreground">เชื่อมต่อ LINE ส่วนตัวกับ LINE OA ของหอพัก เพื่อรับแจ้งเตือนบิลและสถานะรายการ</p></div>\n          <Button type="button" variant="outline" onClick={createLineLinkCode} disabled={lineBusy}>{lineBusy ? "กำลังสร้างรหัส..." : "เชื่อมต่อ LINE"}</Button>\n        </div>\n        {lineCode && <div className="mt-3 rounded-lg bg-muted p-3 text-center">\n          <p className="text-sm">ส่งข้อความนี้ไปยัง LINE OA ของหอพัก</p>\n          <p className="my-2 font-mono text-2xl font-bold tracking-widest">LINK {lineCode}</p>\n          <Button type="button" size="sm" onClick={() => navigator.clipboard.writeText(`LINK ${lineCode}`).then(() => toast.success("คัดลอกรหัสแล้ว")).catch(() => toast.error("คัดลอกไม่สำเร็จ"))}>คัดลอกรหัส</Button>\n          <p className="mt-2 text-xs text-muted-foreground">รหัสใช้ได้ครั้งเดียวและหมดอายุภายใน 10 นาที</p>\n        </div>}\n      </section>
+      <PageHeader title={`สวัสดี ${me?.name ?? ""}`} sub="ข้อมูลการเช่าของคุณ" />
+      <section className="mt-4 rounded-xl border bg-card p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h3 className="font-semibold">การแจ้งเตือนผ่าน LINE</h3><p className="text-sm text-muted-foreground">เชื่อมต่อ LINE ส่วนตัวกับ LINE OA ของหอพัก เพื่อรับแจ้งเตือนบิลและสถานะรายการ</p></div>
+          <Button type="button" variant="outline" onClick={createLineLinkCode} disabled={lineBusy}>{lineBusy ? "กำลังสร้างรหัส..." : "เชื่อมต่อ LINE"}</Button>
+        </div>
+        {lineCode && <div className="mt-3 rounded-lg bg-muted p-3 text-center">
+          <p className="text-sm">ส่งข้อความนี้ไปยัง LINE OA ของหอพัก</p>
+          <p className="my-2 font-mono text-2xl font-bold tracking-widest">LINK {lineCode}</p>
+          <Button type="button" size="sm" onClick={() => navigator.clipboard.writeText(`LINK ${lineCode}`).then(() => toast.success("คัดลอกรหัสแล้ว")).catch(() => toast.error("คัดลอกไม่สำเร็จ"))}>คัดลอกรหัส</Button>
+          <p className="mt-2 text-xs text-muted-foreground">รหัสใช้ได้ครั้งเดียวและหมดอายุภายใน 10 นาที</p>
+        </div>}
+      </section>
       {mine.length === 0 ? (
         <p className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">
           ยังไม่ได้ผูกบัญชีกับห้องพัก กรุณาติดต่อเจ้าหน้าที่หอพัก
