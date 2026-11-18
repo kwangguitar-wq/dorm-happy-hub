@@ -81,7 +81,7 @@ function BillsPage() {
     };
     const { error } = await supabase.from("bills").insert({ ...row, total: billTotal(row) });
     if (error) { toast.error(error.message.includes("duplicate") ? "ห้องนี้มีบิลเดือนนี้แล้ว" : error.message); return; }
-    const notice = await notifyLine("bill_created", "มีการสร้างบิลใหม่", `ห้อง ${room?.room_number ?? "ไม่ระบุ"} · เดือน ${String(f.get("month"))} · ยอด ${baht(billTotal(row))}`);
+    const notice = await notifyLine("bill_created", "มีการสร้างบิลใหม่", `ห้อง ${room?.room_number ?? "ไม่ระบุ"} · เดือน ${String(f.get("month"))} · ยอด ${baht(billTotal(row))}`, rental?.tenant_user_id);
     toast.success("สร้างบิลแล้ว");
     if (!notice.ok) toast.warning(`บันทึกบิลแล้ว แต่ส่ง LINE ไม่สำเร็จ: ${notice.message}`);
     setOpen(false);
