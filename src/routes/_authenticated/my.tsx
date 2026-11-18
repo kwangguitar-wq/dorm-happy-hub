@@ -154,9 +154,7 @@ function MyRoom() {
                 {b.status === "paid" ? <Badge>ชำระแล้ว</Badge>
                   : last ? <Badge variant={payStatus[last.status]?.v}>{payStatus[last.status]?.label}</Badge>
                   : <Badge variant="secondary">ค้างชำระ</Badge>}
-                {b.status !== "paid" && (
-                  <Button size="sm" variant="outline" onClick={() => printInvoice(b, invoiceSettings ?? undefined)}>ใบแจ้งหนี้</Button>
-                )}
+                <Button size="sm" variant="outline" onClick={() => printInvoice(b, invoiceSettings ?? undefined)}>ใบแจ้งหนี้</Button>
                 {canPay && <Button size="sm" onClick={() => setBill(b)}>แจ้งชำระ</Button>}
               </div>
             </div>
