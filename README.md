@@ -73,6 +73,14 @@ Create or use a LINE Official Account and enable the Messaging API in LINE Devel
 - `LINE_ADMIN_USER_ID`: LINE user ID for the dorm manager
 - `LINE_DORM_GROUP_ID`: LINE group ID for the dorm management group
 
-Add the deployed webhook URL in LINE Developers after the webhook endpoint has been implemented and deployed. Invite the LINE Official Account into the dorm group. Tenants must add the Official Account as a friend and explicitly link their LINE account to their tenant profile before receiving private tenant notifications.
+The implemented webhook URL is:
+
+`https://dorm-happy-hub.vercel.app/api/line/webhook`
+
+After the latest deployment is ready, paste that URL into LINE Developers → Messaging API → Webhook URL and enable **Use webhook**. Invite the LINE Official Account into the dorm management group. Send the text `ID` to the Official Account (in a private chat or the group); the bot replies with the LINE user/group ID. Put that value in `LINE_ADMIN_USER_ID` for a private admin chat, or `LINE_DORM_GROUP_ID` for the group. If both are set, the group ID is used.
+
+The app sends manager notifications when a bill is created, a tenant submits a payment, or a tenant creates a repair request. LINE notifications are sent from the server only; the channel access token and channel secret must never use a `VITE_` prefix or be exposed in browser code. A failed LINE send does not cancel a saved bill, payment notice, or repair request.
+
+Tenants must add the Official Account as a friend and explicitly link their LINE account to their tenant profile before any future private tenant notifications can be sent.
 
 **Security note:** Environment files must not be committed. If a real `.env` file was previously committed, deleting it from the latest commit does not erase it from Git history. Rotate every credential that was present in that file, especially Supabase service-role keys and any LINE tokens, before production use.
