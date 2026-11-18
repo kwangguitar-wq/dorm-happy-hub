@@ -47,6 +47,12 @@ export function RepairsPanel({ staff, roomId }: { staff: boolean; roomId?: strin
   async function setStatus(id: string, status: string) {
     const { error } = await supabase.from("repairs").update({ status, updated_at: new Date().toISOString() }).eq("id", id);
     if (error) { toast.error(error.message); return; }
+    const repair = list.find((item) => item.id === id);
+    if (repair?.tenant_user_id) {
+      const label = repairStatus[status]?.label ?? status;
+      const notice = await notifyLine("repair_status_changed", "อัปเดตสถานะการแจ้งซ่อม", `${repair.title} · สถานะใหม่: ${label}`, repair.tenant_user_id);
+      if (!notice.ok) toast.warning(`เปลี่ยนสถานะแล้ว แต่ส่ง LINE ไม่สำเร็จ: ${notice.message}`);
+    }
     qc.invalidateQueries({ queryKey: ["repairs"] });
   }
 
