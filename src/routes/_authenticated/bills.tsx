@@ -272,7 +272,7 @@ ${b.other_fee ? row(`ค่าอื่นๆ${b.other_note ? ` (${b.other_note}
       </Dialog>
 
       <Dialog open={rateOpen} onOpenChange={setRateOpen}>
-        <DialogContent>
+        <DialogContent className="top-[5dvh] max-h-[90dvh] translate-y-0 overflow-y-auto overscroll-contain sm:top-[50%] sm:max-h-[85vh] sm:translate-y-[-50%]">
           <DialogHeader><DialogTitle>ตั้งค่าบิลและช่องทางชำระเงิน</DialogTitle></DialogHeader>
           <form onSubmit={saveRates} className="grid grid-cols-2 gap-3">
             <Field label="ค่าน้ำ (บาท/หน่วย)" name="water_rate" type="number" step="any" defaultValue={settings?.water_rate ?? 0} />
