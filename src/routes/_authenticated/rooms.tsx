@@ -32,8 +32,15 @@ function RoomsPage() {
   async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    const roomNumber = String(f.get("room_number") ?? "").trim();
+    if (!roomNumber) { toast.error("กรุณาระบุเลขห้อง"); return; }
+    let duplicateQuery = supabase.from("rooms").select("id").ilike("room_number", roomNumber);
+    if (editing?.id) duplicateQuery = duplicateQuery.neq("id", editing.id);
+    const { data: duplicates, error: duplicateError } = await duplicateQuery.limit(1);
+    if (duplicateError) { toast.error(`ตรวจสอบเลขห้องไม่สำเร็จ: ${duplicateError.message}`); return; }
+    if (duplicates?.length) { toast.error(`เลขห้อง ${roomNumber} มีอยู่ในระบบแล้ว`); return; }
     const row = {
-      room_number: String(f.get("room_number")),
+      room_number: roomNumber,
       floor: Number(f.get("floor")),
       room_type: String(f.get("room_type")),
       monthly_rate: Number(f.get("monthly_rate")),
@@ -43,7 +50,10 @@ function RoomsPage() {
     const { error } = editing?.id
       ? await supabase.from("rooms").update(row).eq("id", editing.id)
       : await supabase.from("rooms").insert(row);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.code === "23505" ? `เลขห้อง ${roomNumber} มีอยู่ในระบบแล้ว` : error.message);
+      return;
+    }
     if (editing?.id) {
       // keep the current monthly tenant's rent in sync with the room price
       await supabase.from("rentals").update({ rate: row.monthly_rate })
