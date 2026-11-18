@@ -84,3 +84,20 @@ The app sends manager notifications when a bill is created, a tenant submits a p
 Tenants must add the Official Account as a friend and explicitly link their LINE account to their tenant profile before any future private tenant notifications can be sent.
 
 **Security note:** Environment files must not be committed. If a real `.env` file was previously committed, deleting it from the latest commit does not erase it from Git history. Rotate every credential that was present in that file, especially Supabase service-role keys and any LINE tokens, before production use.
+
+## Tenant account removal and re-registration
+
+Before using the **ลบบัญชี** action in User Management, apply
+`supabase/migrations/202611180002_preserve_tenant_history_on_account_reset.sql`
+in the SQL Editor of the linked Supabase project. This migration creates a durable tenant identity
+keyed by normalized email, preserves rental/bill/payment/repair history when an Auth account is
+removed, and reconnects those records when the same email registers again.
+
+The delete endpoint is owner-only and tenant-only. It requires the server environment variable
+`SUPABASE_SERVICE_ROLE_KEY` (server-side only; never expose it with a `VITE_` prefix).
+The migration must be applied before deploying/using the new action. Existing payment rows are
+retained by changing the Auth foreign key to `ON DELETE SET NULL`.
+
+If Supabase refuses deletion because the tenant owns Storage objects, the endpoint aborts and
+restores the record links; review/reassign Storage ownership before retrying. Do not manually
+delete rows from `auth.users` or the application history tables.
