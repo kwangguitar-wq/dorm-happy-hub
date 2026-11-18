@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ const sel = "h-9 rounded-md border bg-background px-2 text-sm";
 
 function Users() {
   const qc = useQueryClient();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { data: me } = useQuery(meQuery);
   const { data: rentals = [] } = useQuery(rentalsQuery());
   const active = rentals.filter((r) => r.status === "active");
@@ -42,6 +44,44 @@ function Users() {
     if (error) { toast.error(error.message); return; }
     toast.success("เปลี่ยนบทบาทแล้ว");
     qc.invalidateQueries({ queryKey: ["users"] });
+  }
+
+  async function deleteTenant(userId: string, email: string | null) {
+    const confirmed = window.confirm(
+      `ยืนยันลบบัญชีเข้าสู่ระบบของ ${email || "ผู้เช่ารายนี้"}?\n\nระบบจะเก็บประวัติการเช่า บิล การชำระเงิน และหลักฐานไว้ และอนุญาตให้สมัครใหม่ด้วยอีเมลเดิมได้`,
+    );
+    if (!confirmed) return;
+
+    setDeletingId(userId);
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData.session?.access_token) {
+        throw new Error("เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+      }
+      const response = await fetch("/api/admin/delete-tenant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
+      const result = (await response.json()) as { message?: string };
+      if (!response.ok) throw new Error(result.message || "ลบบัญชีไม่สำเร็จ");
+
+      toast.success(result.message || "ลบบัญชีแล้ว");
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["users"] }),
+        qc.invalidateQueries({ queryKey: ["rentals"] }),
+        qc.invalidateQueries({ queryKey: ["bills"] }),
+        qc.invalidateQueries({ queryKey: ["payments"] }),
+        qc.invalidateQueries({ queryKey: ["repairs"] }),
+      ]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการลบบัญชี");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   async function link(userId: string, rentalId: string) {
@@ -76,6 +116,16 @@ function Users() {
                     {(Object.keys(roleLabel) as Role[]).map((k) => <option key={k} value={k}>{roleLabel[k]}</option>)}
                   </select>
                 ) : <span className="text-sm">{roleLabel[u.role]}</span>}
+                {isOwner && u.role === "tenant" && (
+                  <button
+                    type="button"
+                    className="h-9 rounded-md border border-destructive/40 px-3 text-sm text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={deletingId !== null}
+                    onClick={() => deleteTenant(u.id, u.email)}
+                  >
+                    {deletingId === u.id ? "กำลังลบ..." : "ลบบัญชี"}
+                  </button>
+                )}
                 {u.role === "tenant" && (
                   <select aria-label="ห้อง" value={linked?.id ?? ""} onChange={(e) => link(u.id, e.target.value)} className={sel}>
                     <option value="">— ยังไม่ผูกห้อง —</option>
