@@ -13,7 +13,7 @@ import { notifyLine } from "@/lib/line-notifications";
 export const repairStatus: Record<string, { label: string; v: "default" | "secondary" | "outline" }> = {
   pending: { label: "รอดำเนินการ", v: "secondary" },
   in_progress: { label: "กำลังซ่อม", v: "outline" },
-  done: { label: "เสร็จแล้ว", v: "default" },
+  completed: { label: "เสร็จสิ้น", v: "default" },
 };
 
 export function RepairsPanel({ staff, roomId }: { staff: boolean; roomId?: string | null }) {
