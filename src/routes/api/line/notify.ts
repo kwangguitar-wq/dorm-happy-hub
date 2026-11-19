@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/line/notify")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const token = request.headers.get("authorization")?.replace(/^Bearer\\s+/i, "");
+        const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
         if (!token) return response("กรุณาเข้าสู่ระบบ", 401);
         const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
         const anonKey = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
