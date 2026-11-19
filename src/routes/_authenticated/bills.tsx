@@ -68,6 +68,9 @@ function BillsPage() {
     const billMonth = `${f.get("month")}-01`;
     const due = new Date(`${billMonth}T12:00:00`);
     due.setDate(Number(settings?.due_day ?? 5));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (due <= today) due.setMonth(due.getMonth() + 1);
     const dueDate = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, "0")}-${String(due.getDate()).padStart(2, "0")}`;
     const billNo = `INV-${String(f.get("month")).replace("-", "")}-${String(room?.room_number ?? roomId.slice(0, 6)).replace(/[^a-zA-Z0-9ก-๙-]/g, "")}`;
     const row = {
