@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { LogOut, Plus, Search } from "lucide-react";
+import { LogOut, Plus, Search, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
@@ -20,6 +20,7 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<"active" | "completed">("active");
   const [roomId, setRoomId] = useState("");
+  const [editing, setEditing] = useState<any>(null);
   const isDaily = type === "daily";
   const vacant = rooms.filter((r) => r.status === "vacant");
   const selectedRoom = rooms.find((r) => r.id === roomId);
@@ -67,6 +68,25 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
     refresh();
   }
 
+  function startEdit(r: any) { setEditing(r); setOpen(true); }
+  async function saveEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editing) return;
+    const f = new FormData(e.currentTarget);
+    const { error } = await supabase.from("rentals").update({
+      tenant_name: String(f.get("tenant_name")).trim(),
+      phone: String(f.get("phone") || "") || null,
+      id_card: String(f.get("id_card") || "") || null,
+      email: String(f.get("email") || "") || null,
+      check_in: String(f.get("check_in")),
+      check_out: String(f.get("check_out") || "") || null,
+      rate: Number(f.get("rate")), deposit: Number(f.get("deposit") || 0),
+      notes: String(f.get("notes") || "") || null,
+    }).eq("id", editing.id);
+    if (error) { toast.error(`แก้ไขข้อมูลไม่สำเร็จ: ${error.message}`); return; }
+    toast.success("บันทึกการแก้ไขข้อมูลผู้เช่าแล้ว");
+    setOpen(false); setEditing(null); refresh();
+  }
   async function checkout(id: string, room_id: string) {
     if (!confirm("ยืนยันการย้ายออก/เช็คเอาท์?")) return;
     const today = new Date().toISOString().slice(0, 10);
@@ -140,24 +160,23 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
                     </>
                   )}
                 </div>
-                {r.status === "active" && (
-                  <Button variant="outline" size="sm" className="mt-3 w-full" onClick={() => checkout(r.id, r.room_id)}>
-                    <LogOut /> {isDaily ? "เช็คเอาท์" : "ย้ายออก"}
-                  </Button>
-                )}
+                <div className="mt-3 flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => startEdit(r)}><Pencil /> แก้ไขข้อมูล</Button>
+                  {r.status === "active" && <Button variant="outline" size="sm" className="flex-1" onClick={() => checkout(r.id, r.room_id)}><LogOut /> {isDaily ? "เช็คเอาท์" : "ย้ายออก"}</Button>}
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) setEditing(null); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isDaily ? "เช็คอินผู้เช่ารายวัน" : "เพิ่มผู้เช่ารายเดือน"}</DialogTitle>
+            <DialogTitle>{editing ? "แก้ไขข้อมูลผู้เช่า" : (isDaily ? "เช็คอินผู้เช่ารายวัน" : "เพิ่มผู้เช่ารายเดือน")}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={create} className="grid grid-cols-2 gap-3">
-            <div className="col-span-2 space-y-1.5">
+          <form key={editing?.id ?? "new"} onSubmit={editing ? saveEdit : create} className="grid grid-cols-2 gap-3">
+            {!editing && <div className="col-span-2 space-y-1.5">
               <Label>ห้อง (ว่าง)</Label>
               <select
                 name="room_id"
@@ -173,25 +192,26 @@ export function RentalsManager({ type }: { type: "daily" | "monthly" }) {
                   </option>
                 ))}
               </select>
-            </div>
-            <F label="ชื่อ-นามสกุล" name="tenant_name" required className="col-span-2" />
-            <F label="เบอร์โทร" name="phone" type="tel" />
-            <F label="เลขบัตรประชาชน" name="id_card" />
-            <F label="อีเมล" name="email" type="email" className="col-span-2" />
-            <F label="วันที่เข้า" name="check_in" type="date" defaultValue={today} required />
-            <F label={isDaily ? "วันที่ออก" : "สิ้นสุดสัญญา"} name="check_out" type="date" required={isDaily} />
+            </div>}
+            {editing && <p className="col-span-2 text-sm text-muted-foreground">ห้อง {editing.rooms?.room_number} (ไม่เปลี่ยนห้อง)</p>}
+            <F label="ชื่อ-นามสกุล" name="tenant_name" required className="col-span-2" defaultValue={editing?.tenant_name ?? ""} />
+            <F label="เบอร์โทร" name="phone" type="tel" defaultValue={editing?.phone ?? ""} />
+            <F label="เลขบัตรประชาชน" name="id_card" defaultValue={editing?.id_card ?? ""} />
+            <F label="อีเมล" name="email" type="email" className="col-span-2" defaultValue={editing?.email ?? ""} />
+            <F label="วันที่เข้า" name="check_in" type="date" defaultValue={editing?.check_in ?? today} required />
+            <F label={isDaily ? "วันที่ออก" : "สิ้นสุดสัญญา"} name="check_out" type="date" defaultValue={editing?.check_out ?? ""} required={isDaily} />
             <F
-              key={roomId}
+              key={editing?.id ?? roomId}
               label={isDaily ? "ราคา/คืน" : "ค่าเช่า/เดือน"}
               name="rate"
               type="number"
               required
-              defaultValue={selectedRoom ? (isDaily ? selectedRoom.daily_rate : selectedRoom.monthly_rate) : ""}
+              defaultValue={editing?.rate ?? (selectedRoom ? (isDaily ? selectedRoom.daily_rate : selectedRoom.monthly_rate) : "")}
             />
-            <F label="เงินประกัน" name="deposit" type="number" defaultValue={0} />
+            <F label="เงินประกัน" name="deposit" type="number" defaultValue={editing?.deposit ?? 0} />
             <div className="col-span-2 space-y-1.5">
               <Label>หมายเหตุ</Label>
-              <Textarea name="notes" rows={2} />
+              <Textarea name="notes" rows={2} defaultValue={editing?.notes ?? ""} />
             </div>
             <Button type="submit" className="col-span-2">
               บันทึก
