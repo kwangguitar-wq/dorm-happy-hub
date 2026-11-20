@@ -79,7 +79,6 @@ function Dashboard() {
   const monthlyTenants = active.filter((r) => r.rental_type === "monthly");
   const billsThisMonth = bills.filter((b) => b.bill_month.slice(0, 7) === monthKey);
   const paidThisMonth = billsThisMonth.filter((b) => b.status === "paid").reduce((sum, b) => sum + Number(b.total), 0);
-  const billedThisMonth = billsThisMonth.reduce((sum, b) => sum + Number(b.total), 0);
   const outstandingThisMonth = billsThisMonth.filter((b) => b.status !== "paid").reduce((sum, b) => sum + Number(b.total), 0);
   const dailyStartedToday = dailyTenants.filter((r) => r.check_in.slice(0, 10) === today).reduce((sum, r) => sum + Number(r.rate), 0);
   const pendingRepairs = repairs.filter((r) => r.status === "pending" || r.status === "in_progress").length;
