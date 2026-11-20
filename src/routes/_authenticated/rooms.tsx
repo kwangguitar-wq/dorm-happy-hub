@@ -1,14 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Pencil, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Pencil, Plus, Search, DoorOpen, Users, Wrench, BedDouble, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { baht, roomsQuery, roomStatusLabel, type Room } from "@/lib/dorm";
 
@@ -24,10 +23,34 @@ export const Route = createFileRoute("/_authenticated/rooms")({
   component: RoomsPage,
 });
 
+const statusStyle: Record<string, string> = {
+  vacant: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  occupied: "bg-rose-50 text-rose-700 ring-rose-200",
+  maintenance: "bg-amber-50 text-amber-700 ring-amber-200",
+};
+
 function RoomsPage() {
   const { data: rooms = [] } = useQuery(roomsQuery);
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Partial<Room> | null>(null);
+  const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("all");
+  const [roomType, setRoomType] = useState("all");
+
+  const roomTypes = useMemo(() => [...new Set(rooms.map((r) => r.room_type).filter(Boolean))].sort(), [rooms]);
+  const filtered = useMemo(() => rooms.filter((room) => {
+    const matchesText = `${room.room_number} ${room.room_type} ${room.floor}`.toLowerCase().includes(keyword.trim().toLowerCase());
+    const matchesStatus = status === "all" || room.status === status;
+    const matchesType = roomType === "all" || room.room_type === roomType;
+    return matchesText && matchesStatus && matchesType;
+  }), [rooms, keyword, status, roomType]);
+
+  const stats = [
+    { label: "ห้องว่าง", value: rooms.filter((r) => r.status === "vacant").length, icon: DoorOpen, gradient: "from-emerald-500 to-teal-400" },
+    { label: "มีผู้เช่าอยู่", value: rooms.filter((r) => r.status === "occupied").length, icon: Users, gradient: "from-rose-500 to-pink-400" },
+    { label: "ปิดซ่อม", value: rooms.filter((r) => r.status === "maintenance").length, icon: Wrench, gradient: "from-amber-500 to-orange-400" },
+    { label: "ห้องทั้งหมด", value: rooms.length, icon: BedDouble, gradient: "from-sky-500 to-blue-400" },
+  ];
 
   async function save(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,7 +78,6 @@ function RoomsPage() {
       return;
     }
     if (editing?.id) {
-      // keep the current monthly tenant's rent in sync with the room price
       await supabase.from("rentals").update({ rate: row.monthly_rate })
         .eq("room_id", editing.id).eq("status", "active").eq("rental_type", "monthly");
       qc.invalidateQueries({ queryKey: ["rentals"] });
@@ -69,40 +91,95 @@ function RoomsPage() {
     <>
       <PageHeader
         title="ห้องพัก"
-        sub={`${rooms.length} ห้อง`}
-        action={
-          <Button onClick={() => setEditing({})}>
-            <Plus /> เพิ่มห้อง
-          </Button>
-        }
+        sub={`จัดการข้อมูลห้องพักทั้งหมด · ${rooms.length} ห้อง`}
+        action={<Button onClick={() => setEditing({})} className="rounded-xl bg-[#1d3b64] shadow-sm hover:bg-[#102b50]"><Plus /> เพิ่มห้องพัก</Button>}
       />
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {rooms.map((r) => (
-          <div key={r.id} className="rounded-xl border bg-card p-5 shadow-soft">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-display text-2xl font-semibold">ห้อง {r.room_number}</p>
-                <p className="text-sm text-muted-foreground">
-                  ชั้น {r.floor} · {r.room_type}
-                </p>
-              </div>
-              <Badge variant={r.status === "vacant" ? "secondary" : "default"}>{roomStatusLabel[r.status]}</Badge>
+
+      <section className="mb-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className={`relative min-h-[100px] overflow-hidden rounded-2xl bg-gradient-to-br ${stat.gradient} p-4 text-white shadow-md`}>
+            <div className="absolute -right-3 -top-4 flex h-20 w-20 items-center justify-center rounded-full bg-white/15">
+              <stat.icon className="h-8 w-8 text-white/85" />
             </div>
-            <div className="mt-4 flex justify-between text-sm">
-              <span>รายเดือน {baht(r.monthly_rate)}</span>
-              <span>รายวัน {baht(r.daily_rate)}</span>
-            </div>
-            <Button variant="outline" size="sm" className="mt-4 w-full" onClick={() => setEditing(r)}>
-              <Pencil /> แก้ไข
-            </Button>
+            <p className="relative text-xs font-semibold text-white/90">{stat.label}</p>
+            <p className="relative mt-2 font-display text-3xl font-bold">{stat.value}</p>
           </div>
         ))}
-      </div>
+      </section>
+
+      <section className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="grid gap-3 lg:grid-cols-[minmax(220px,1.6fr)_minmax(150px,0.8fr)_minmax(150px,0.8fr)_auto_auto]">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="ค้นหาหมายเลขห้อง..." className="h-10 rounded-xl pl-9" />
+          </div>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-10 rounded-xl border border-input bg-white px-3 text-sm text-slate-700">
+            <option value="all">ทุกสถานะ</option>
+            <option value="vacant">ห้องว่าง</option>
+            <option value="occupied">มีผู้เช่า</option>
+            <option value="maintenance">ปิดซ่อม</option>
+          </select>
+          <select value={roomType} onChange={(e) => setRoomType(e.target.value)} className="h-10 rounded-xl border border-input bg-white px-3 text-sm text-slate-700">
+            <option value="all">ทุกประเภทห้อง</option>
+            {roomTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+          <Button variant="outline" className="h-10 rounded-xl border-[#1d3b64] text-[#1d3b64]" onClick={() => { setKeyword(""); setStatus("all"); setRoomType("all"); }}>
+            <X className="h-4 w-4" /> ล้างตัวกรอง
+          </Button>
+          <div className="flex h-10 items-center justify-center rounded-xl bg-slate-50 px-4 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+            พบ {filtered.length} / {rooms.length} ห้อง
+          </div>
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:p-4">
+        <div className="mb-3 flex items-center justify-between px-1">
+          <div>
+            <h3 className="font-display text-sm font-semibold text-[#173456]">รายการห้องพัก</h3>
+            <p className="mt-0.5 text-xs text-slate-400">ข้อมูลห้องพักและอัตราค่าเช่า</p>
+          </div>
+          <span className="rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">ชั้นทั้งหมด</span>
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-slate-100">
+          <table className="w-full min-w-[760px] text-left text-xs">
+            <thead className="bg-gradient-to-r from-slate-50 to-indigo-50 text-slate-700">
+              <tr>
+                <th className="px-4 py-3 font-semibold">หมายเลขห้อง</th>
+                <th className="px-4 py-3 font-semibold">ประเภท / ชั้น</th>
+                <th className="px-4 py-3 text-right font-semibold">รายวัน</th>
+                <th className="px-4 py-3 text-right font-semibold">รายเดือน</th>
+                <th className="px-4 py-3 text-center font-semibold">สถานะ</th>
+                <th className="px-4 py-3 text-right font-semibold">การดำเนินการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-400">ไม่พบข้อมูลห้องพักตามเงื่อนไขที่เลือก</td></tr>
+              ) : filtered.map((room) => (
+                <tr key={room.id} className="border-t border-slate-100 transition hover:bg-blue-50/30">
+                  <td className="px-4 py-4 font-display text-sm font-bold text-slate-800">{room.room_number}</td>
+                  <td className="px-4 py-4"><p className="font-medium text-slate-700">{room.room_type}</p><p className="mt-0.5 text-[10px] text-slate-400">ชั้น {room.floor}</p></td>
+                  <td className="px-4 py-4 text-right tabular-nums text-slate-700">{baht(room.daily_rate)}</td>
+                  <td className="px-4 py-4 text-right tabular-nums text-slate-700">{baht(room.monthly_rate)}</td>
+                  <td className="px-4 py-4 text-center">
+                    <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-semibold ring-1 ring-inset ${statusStyle[room.status] ?? "bg-slate-100 text-slate-600 ring-slate-200"}`}>{roomStatusLabel[room.status] ?? room.status}</span>
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <Button size="sm" variant="outline" className="h-8 rounded-lg border-amber-300 px-3 text-amber-700 hover:bg-amber-50" onClick={() => setEditing(room)}>
+                      <Pencil className="h-3.5 w-3.5" /> แก้ไข
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing?.id ? "แก้ไขห้อง" : "เพิ่มห้อง"}</DialogTitle>
+            <DialogTitle>{editing?.id ? "แก้ไขห้องพัก" : "เพิ่มห้องพัก"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={save} className="grid grid-cols-2 gap-3">
             <Field label="เลขห้อง" name="room_number" defaultValue={editing?.room_number} required />
@@ -110,23 +187,13 @@ function RoomsPage() {
             <Field label="ประเภท" name="room_type" defaultValue={editing?.room_type ?? "มาตรฐาน"} />
             <div className="space-y-1.5">
               <Label>สถานะ</Label>
-              <select
-                name="status"
-                defaultValue={editing?.status ?? "vacant"}
-                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
-              >
-                {Object.entries(roomStatusLabel).map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
+              <select name="status" defaultValue={editing?.status ?? "vacant"} className="h-9 w-full rounded-md border bg-background px-2 text-sm">
+                {Object.entries(roomStatusLabel).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
               </select>
             </div>
             <Field label="ค่าเช่ารายเดือน" name="monthly_rate" type="number" defaultValue={editing?.monthly_rate ?? 0} />
             <Field label="ค่าเช่ารายวัน" name="daily_rate" type="number" defaultValue={editing?.daily_rate ?? 0} />
-            <Button type="submit" className="col-span-2">
-              บันทึก
-            </Button>
+            <Button type="submit" className="col-span-2 bg-[#1d3b64] hover:bg-[#102b50]">บันทึกข้อมูล</Button>
           </form>
         </DialogContent>
       </Dialog>
