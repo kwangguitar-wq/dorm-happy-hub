@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   BedDouble, CalendarDays, Users, Wrench, Wallet, ReceiptText,
-  DoorOpen, CheckCircle2, CircleAlert, ArrowUpRight, Clock3,
+  DoorOpen, ArrowUpRight,
 } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -84,12 +84,14 @@ function Dashboard() {
   const dailyStartedToday = dailyTenants.filter((r) => r.check_in.slice(0, 10) === today).reduce((sum, r) => sum + Number(r.rate), 0);
   const pendingRepairs = repairs.filter((r) => r.status === "pending" || r.status === "in_progress").length;
 
+  const monthlyExpected = monthlyTenants.reduce((sum, r) => sum + Number(r.rate), 0);
   const stats = [
     { label: "ผู้เช่ารายวันปัจจุบัน", value: `${dailyTenants.length} คน`, note: "รายการเช่ารายวันที่ยังใช้งาน", icon: CalendarDays, gradient: "from-sky-500 to-cyan-400", href: "/tenants/daily" },
     { label: "ผู้เช่ารายเดือน", value: `${monthlyTenants.length} คน`, note: "สัญญาเช่าที่กำลังใช้งาน", icon: Users, gradient: "from-emerald-500 to-teal-400", href: "/tenants/monthly" },
-    { label: "รับชำระแล้วเดือนนี้", value: baht(paidThisMonth), note: `จากยอดเรียกเก็บ ${baht(billedThisMonth)}`, icon: Wallet, gradient: "from-rose-500 to-pink-400", href: "/bills" },
-    { label: "ยอดค้างชำระเดือนนี้", value: baht(outstandingThisMonth), note: "ยอดบิลที่ยังไม่ชำระ", icon: ReceiptText, gradient: "from-amber-500 to-orange-400", href: "/bills" },
-    { label: "รายการแจ้งซ่อม", value: `${pendingRepairs} รายการ`, note: "รอดำเนินการหรือกำลังซ่อม", icon: Wrench, gradient: "from-slate-500 to-slate-400", href: "/repairs" },
+    { label: "ค่าเช่ารายวัน (เริ่มวันนี้)", value: baht(dailyStartedToday), note: "รวมรายการที่เริ่มเข้าพักวันนี้", icon: CalendarDays, gradient: "from-rose-500 to-pink-400", href: "/tenants/daily" },
+    { label: "ค่าเช่ารายเดือนตามสัญญา", value: baht(monthlyExpected), note: "รวมสัญญารายเดือนที่ใช้งาน", icon: Wallet, gradient: "from-amber-500 to-orange-400", href: "/tenants/monthly" },
+    { label: "รับชำระแล้วเดือนนี้", value: baht(paidThisMonth), note: `ยอดค้าง ${baht(outstandingThisMonth)}`, icon: ReceiptText, gradient: "from-indigo-500 to-blue-400", href: "/bills" },
+    { label: "รายการแจ้งซ่อม", value: `${pendingRepairs} รายการ`, note: "ในรายการแจ้งซ่อมล่าสุด", icon: Wrench, gradient: "from-slate-500 to-slate-400", href: "/repairs" },
   ] as const;
 
   const chartData = Array.from({ length: 6 }, (_, index) => {
@@ -118,7 +120,7 @@ function Dashboard() {
   return (
     <div className="space-y-5">
       <PageHeader title="แดชบอร์ด" sub={`ภาพรวมการดำเนินงาน · ${thDate(new Date().toISOString())}`} />
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {stats.map((stat) => (
           <Link key={stat.label} to={stat.href} className={cn(
             "group relative min-h-[116px] overflow-hidden rounded-2xl bg-gradient-to-br p-4 text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg",
